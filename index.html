@@ -60,14 +60,11 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
 /* NODE TEXT BOX — typewriter copy beside each node */
 #nodeTextBox{
   position:fixed;z-index:200;
-  width:280px;
-  background:rgba(8,8,8,.88);
-  border:1px solid rgba(242,237,228,.12);
-  padding:20px 22px;
+  width:290px;
+  padding:0;
   pointer-events:none;
   opacity:0;
-  transition:opacity .15s;
-  backdrop-filter:blur(4px);
+  transition:opacity .2s;
 }
 #nodeTextBox.visible{opacity:1}
 .ntb-headline{
@@ -76,12 +73,14 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
   color:var(--text);margin-bottom:10px;
   line-height:1;font-weight:normal;
   min-height:26px;
+  text-shadow:0 0 28px rgba(0,0,0,1),0 0 56px rgba(0,0,0,1),0 0 90px rgba(0,0,0,.95);
 }
 .ntb-body{
   font-family:"Syne",sans-serif;
-  font-size:12px;line-height:1.7;
-  color:rgba(242,237,228,.7);
+  font-size:12px;line-height:1.75;
+  color:rgba(242,237,228,.78);
   min-height:60px;
+  text-shadow:0 0 22px rgba(0,0,0,1),0 0 44px rgba(0,0,0,1),0 0 70px rgba(0,0,0,.9);
 }
 
 /* TITLE */
@@ -89,6 +88,30 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
 #title h1{font-family:"Pirata One",cursive;font-size:clamp(26px,3.4vw,48px);letter-spacing:.06em;line-height:1}
 #title p{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-top:7px}
 
+
+/* BIO QUESTION MARK — Pirata One ? with CSS 3D perspective spin */
+.bio-qmark{
+  font-family:"Pirata One",cursive;
+  font-size:52px;
+  color:rgba(242,237,228,.85);
+  line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  width:64px;height:64px;
+  animation:qSpin 5s ease-in-out infinite;
+  transform-style:preserve-3d;
+  text-shadow:0 0 12px rgba(242,237,228,.3),0 0 24px rgba(242,237,228,.15);
+  transition:text-shadow .25s;
+}
+.node:hover .bio-qmark,.node.snapped .bio-qmark{
+  text-shadow:0 0 16px rgba(242,237,228,.8),0 0 32px rgba(242,237,228,.5),0 0 60px rgba(242,237,228,.3);
+}
+@keyframes qSpin{
+  0%   {transform:perspective(200px) rotateY(0deg)   rotateX(0deg)}
+  25%  {transform:perspective(200px) rotateY(180deg) rotateX(8deg)}
+  50%  {transform:perspective(200px) rotateY(360deg) rotateX(0deg)}
+  75%  {transform:perspective(200px) rotateY(540deg) rotateX(-8deg)}
+  100% {transform:perspective(200px) rotateY(720deg) rotateX(0deg)}
+}
 
 /* CONTACT TRAY */
 #contact{
@@ -232,12 +255,9 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
   <span class="nl">Brand<span class="nt">[ identity pending ]</span></span>
 </div>
 
-<!-- -90° bottom: Bio -->
+<!-- -90° bottom: Bio — Pirata One ? with CSS 3D spin -->
 <div class="node" id="n-bio" data-s="bio" style="--nc:#F2EDE4;--fd:6.5s;--fd2:1.4s">
-  <!-- Question mark placeholder — Three.js replaces this -->
-  <svg viewBox="0 0 64 64" fill="none">
-    <text x="32" y="46" text-anchor="middle" font-size="44" font-family="Syne,sans-serif" fill="none" stroke="rgba(242,237,228,.7)" stroke-width="1.2">?</text>
-  </svg>
+  <div class="bio-qmark">?</div>
   <span class="nl">Sebastian<span class="nt">[ well met, stranger ]</span></span>
 </div>
 
@@ -610,44 +630,12 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeAll();closeBio
 (function init3D(){
   if(typeof THREE==="undefined")return;
 
-  // Question mark — TubeGeometry following actual ? curve path
-  function makeQMark(color){
-    const mat=()=>new THREE.LineBasicMaterial({color,transparent:true,opacity:.88});
-    const grp=new THREE.Group();
-    // Curve points tracing the ? shape (y goes top-to-bottom in screen coords)
-    const pts=[
-      new THREE.Vector3( 0.00,-0.20, 0), // tail — exits into stem gap
-      new THREE.Vector3(-0.18, 0.00, 0), // hooking inward
-      new THREE.Vector3(-0.48, 0.28, 0), // left arc
-      new THREE.Vector3(-0.54, 0.58, 0), // left middle
-      new THREE.Vector3(-0.34, 0.86, 0), // upper left
-      new THREE.Vector3( 0.00, 0.96, 0), // top centre
-      new THREE.Vector3( 0.34, 0.86, 0), // upper right
-      new THREE.Vector3( 0.54, 0.58, 0), // right middle
-      new THREE.Vector3( 0.48, 0.28, 0), // right arc
-      new THREE.Vector3( 0.18, 0.08, 0), // curving back in
-      new THREE.Vector3( 0.00,-0.08, 0), // curve end
-    ];
-    const curve=new THREE.CatmullRomCurve3(pts);
-    const tubeG=new THREE.TubeGeometry(curve,28,.075,7,false);
-    const tubeW=new THREE.WireframeGeometry(tubeG);
-    grp.add(new THREE.LineSegments(tubeW,mat()));
-    // Dot
-    const dotG=new THREE.SphereGeometry(.11,7,7);
-    const dotW=new THREE.WireframeGeometry(dotG);
-    const dotM=new THREE.LineSegments(dotW,mat());
-    dotM.position.set(0,-.70,0);
-    grp.add(dotM);
-    return grp;
-  }
-
   const defs=[
     {id:"n-photo",   make:()=>new THREE.IcosahedronGeometry(1.1,1)},
     {id:"n-writing", make:()=>{const g=new THREE.SphereGeometry(1,8,6);g.scale(1.65,.40,.9);return g;}},
     {id:"n-ai",      make:()=>new THREE.BoxGeometry(1.35,1.35,1.35)},
     {id:"n-adfilms", make:()=>new THREE.TetrahedronGeometry(1.22,0)},
     {id:"n-brand",   make:()=>new THREE.CylinderGeometry(.95,.95,.65,6,1)},
-    {id:"n-bio",     make:null},
   ];
 
   const speeds=[
@@ -656,7 +644,6 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeAll();closeBio
     {rx:.007,ry:.009,rz:.004},
     {rx:.010,ry:.007,rz:.006},
     {rx:.003,ry:.006,rz:.008},
-    {rx:.005,ry:.008,rz:.004},
   ];
 
   const nodes3D=defs.map(({id,make},i)=>{
@@ -677,18 +664,14 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeAll();closeBio
     camera.position.z=3.8;
 
     let mesh;
-    if(id==="n-bio"){
-      mesh=makeQMark(color);
-    }else{
-      const geo=make();
-      const wGeo=new THREE.WireframeGeometry(geo);
-      const mat=new THREE.LineBasicMaterial({color,transparent:true,opacity:.82});
-      mesh=new THREE.LineSegments(wGeo,mat);
-    }
+    const geo=make();
+    const wGeo=new THREE.WireframeGeometry(geo);
+    const mat=new THREE.LineBasicMaterial({color,transparent:true,opacity:.82});
+    mesh=new THREE.LineSegments(wGeo,mat);
     mesh.rotation.x=(i*.8);mesh.rotation.y=(i*1.1);
     scene.add(mesh);
 
-    return{el,renderer,scene,camera,mesh,mat:mesh.material||null,...speeds[i],isGroup:id==="n-bio"};
+    return{el,renderer,scene,camera,mesh,mat:mesh.material,...speeds[i]};
   }).filter(Boolean);
 
   (function animate(){
