@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photography — Sacred Noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Syne:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+<style>
+/* ── RESET ─────────────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;user-select:none}
+
+:root{
+  --black:#0A0A0A; --dark:#111; --surface:#181818;
+  --text:#F2EDE4;  --dim:rgba(242,237,228,.38);
+  --red:#CC1A1A;   --purple:#6A0DAD; --blue:#1F3A93;
+  --sz:320px;
+}
+
+html,body{
+  width:100%;height:100%;
+  background:var(--black);color:var(--text);
+  font-family:"Syne",sans-serif;
+  overflow:hidden;cursor:grab;
+}
+body.dragging{cursor:grabbing}
+body.zoom-mode{cursor:default}
+
+/* GRAIN */
+body::before{
+  content:"";position:fixed;inset:0;z-index:8000;pointer-events:none;opacity:.048;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.88%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+  background-size:170px;animation:grain .38s steps(2) infinite;
+}
+@keyframes grain{
+  0%{background-position:0 0}25%{background-position:-40px 15px}
+  50%{background-position:20px -30px}75%{background-position:-15px 40px}
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────── */
+.header{
+  position:fixed;top:0;left:0;width:100%;padding:28px 36px;
+  z-index:9000;display:flex;align-items:center;justify-content:space-between;
+  pointer-events:none;opacity:0;
+}
+.header>*{pointer-events:auto}
+.back-link{
+  font-family:"Space Mono",monospace;font-size:10px;
+  letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color .2s;
+}
+.back-link:hover{color:var(--text)}
+.hd-title{
+  font-family:"Pirata One",cursive;
+  font-size:clamp(18px,2vw,28px);letter-spacing:.05em;
+}
+.hd-hint{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--dim);
+  text-align:right;
+}
+
+/* ── VIEWPORT & CANVAS ──────────────────────────────────────────── */
+.viewport{
+  position:fixed;inset:0;
+  overflow:hidden;z-index:1;opacity:0;
+}
+.canvas-wrapper{
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;will-change:transform;isolation:isolate;
+}
+.grid-container{position:relative;width:100%;height:100%}
+
+/* ── PHOTO ITEMS ────────────────────────────────────────────────── */
+.grid-item{
+  position:absolute;
+  width:var(--sz);height:var(--sz);
+  background:var(--dark);cursor:pointer;
+  will-change:transform,opacity;
+  z-index:1;overflow:hidden;
+}
+.grid-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  pointer-events:none;transition:transform .5s ease;
+}
+.grid-item:hover img{transform:scale(1.05)}
+.grid-item.out-of-view{opacity:.07}
+.grid-item.filtered-out{opacity:.04!important;pointer-events:none!important;transition:opacity .4s}
+
+/* ── GENRE CARDS ────────────────────────────────────────────────── */
+.genre-card{
+  position:absolute;
+  width:var(--sz);height:var(--sz);
+  background:var(--surface);
+  border:1px solid rgba(242,237,228,.1);
+  cursor:pointer;will-change:transform,opacity;z-index:1;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:28px;overflow:hidden;
+  transition:border-color .3s,background .3s;
+}
+.genre-card::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 15% 85%, var(--gc) 0%, transparent 65%);
+  opacity:0;transition:opacity .35s;pointer-events:none;
+}
+.genre-card:hover::after,.genre-card.active::after{opacity:1}
+.genre-card:hover{border-color:rgba(242,237,228,.28)}
+.genre-card.active{border-color:var(--gcc);background:var(--dark)}
+.gc-count{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.gc-name{
+  font-family:"Pirata One",cursive;
+  font-size:clamp(30px,3.5vw,48px);line-height:1;
+  color:var(--text);transition:color .3s;
+  position:relative;z-index:1;
+}
+.genre-card.active .gc-name{color:var(--gcc)}
+.gc-hint{
+  font-family:"Space Mono",monospace;font-size:8px;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gcc);margin-top:10px;
+  position:relative;z-index:1;
+  opacity:0;transition:opacity .3s;
+}
+.genre-card:hover .gc-hint,.genre-card.active .gc-hint{opacity:1}
+
+/* ── SPLIT SCREEN ───────────────────────────────────────────────── */
+.split-screen{
+  position:fixed;inset:0;display:flex;z-index:2;
+  opacity:0;pointer-events:none;
+}
+.split-screen.active{opacity:1;pointer-events:all}
+.split-left,.split-right{
+  position:relative;width:50vw;height:100vh;
+  background:rgba(0,0,0,.65);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1;cursor:pointer;
+}
+.zoom-target{
+  width:100%;height:100%;position:relative;
+  display:flex;align-items:center;justify-content:center;z-index:1;
+}
+
+/* Photo info — right panel */
+.photo-info{
+  position:absolute;bottom:52px;left:52px;
+  pointer-events:none;opacity:0;
+  text-align:left;
+}
+.pi-idx{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
+  margin-bottom:14px;overflow:hidden;height:16px;
+}
+.pi-idx span{display:block;transform:translateY(20px)}
+.pi-title{
+  font-family:"Pirata One",cursive;
+  font-size:clamp(36px,5vw,68px);line-height:1;
+  color:var(--text);overflow:hidden;
+}
+.pi-title h1{transform:translateY(80px);margin:0}
+.pi-genre{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);margin-top:18px;overflow:hidden;height:16px;
+}
+.pi-genre span{display:block;transform:translateY(20px)}
+
+/* Scaling overlay (Flip) */
+.scaling-overlay{
+  position:fixed;top:0;left:0;z-index:3;
+  pointer-events:none;will-change:transform;opacity:1!important;
+}
+.scaling-overlay img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Close button */
+.close-btn{
+  position:fixed;top:50%;right:24px;
+  width:52px;height:52px;
+  background:none;border:1px solid rgba(242,237,228,.2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  z-index:5;opacity:0;pointer-events:none;
+  transform:translate(60px,-50%);transition:border-color .2s;
+}
+.close-btn:hover{border-color:rgba(242,237,228,.55)}
+.close-btn.active{pointer-events:all}
+.close-btn svg{width:22px;height:22px;transform:rotate(180deg)}
+
+/* ── CONTROLS ───────────────────────────────────────────────────── */
+.controls{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%);
+  display:flex;align-items:center;gap:6px;
+  z-index:9000;opacity:0;
+  transition:left .9s cubic-bezier(.87,0,.13,1);
+}
+.controls.visible{opacity:1}
+.controls.split-mode{left:75%}
+
+.ctrl-zoom-val{
+  font-family:"Space Mono",monospace;font-size:10px;
+  letter-spacing:.15em;color:#1a1a1a;
+  background:var(--text);padding:9px 16px;white-space:nowrap;
+}
+.ctrl-group{
+  display:flex;gap:12px;
+  background:var(--surface);
+  border:1px solid rgba(242,237,228,.1);
+  padding:9px 18px;
+}
+.ctrl-btn{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(242,237,228,.35);background:none;border:none;
+  cursor:pointer;padding:0;white-space:nowrap;transition:color .2s;
+}
+.ctrl-btn:hover{color:var(--text)}
+.ctrl-btn.on{color:var(--text)}
+.ctrl-btn.on::before{content:"· ";color:var(--red)}
+.ctrl-rand{
+  font-family:"Space Mono",monospace;font-size:9px;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);background:none;
+  border:1px solid rgba(242,237,228,.15);
+  padding:9px 18px;cursor:pointer;white-space:nowrap;
+  transition:color .2s,border-color .2s;
+}
+.ctrl-rand:hover{color:var(--text);border-color:rgba(242,237,228,.5)}
+
+/* ── VIGNETTE ───────────────────────────────────────────────────── */
+.vignette{
+  position:fixed;inset:0;pointer-events:none;z-index:7999;
+  background:radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,.55) 100%);
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloaderEl"></div>
+
+<!-- HEADER -->
+<div class="header" id="hdr">
+  <a href="index.html" class="back-link">← Sacred Noise</a>
+  <span class="hd-title">Photography</span>
+  <span class="hd-hint">Drag to wander · Click image to open<br>Approach genre cards to filter</span>
+</div>
+
+<!-- DRAG CANVAS -->
+<div class="viewport" id="viewport">
+  <div class="canvas-wrapper" id="canvasWrapper">
+    <div class="grid-container" id="gridContainer"></div>
+  </div>
+</div>
+
+<!-- SPLIT SCREEN (zoom view) -->
+<div class="split-screen" id="splitScreen">
+  <div class="split-left" id="splitLeft">
+    <div class="zoom-target" id="zoomTarget"></div>
+  </div>
+  <div class="split-right" id="splitRight">
+    <div class="photo-info" id="photoInfo">
+      <div class="pi-idx" id="piIdx"><span>01</span></div>
+      <div class="pi-title" id="piTitle"><h1>Untitled</h1></div>
+      <div class="pi-genre" id="piGenre"><span>Portrait</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE BUTTON -->
+<button class="close-btn" id="closeBtn">
+  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.9 16L6.36 14.48 11.83 9.08H0V6.92h11.83L6.36 1.52 7.9 0 16 8z" fill="white"/>
+  </svg>
+</button>
+
+<!-- CONTROLS -->
+<div class="controls" id="controls">
+  <span class="ctrl-zoom-val" id="zoomVal">60%</span>
+  <div class="ctrl-group">
+    <button class="ctrl-btn" onclick="G.setZoom(.3,this)">Out</button>
+    <button class="ctrl-btn on" onclick="G.setZoom(.6,this)">Normal</button>
+    <button class="ctrl-btn" onclick="G.setZoom(1,this)">In</button>
+    <button class="ctrl-btn" onclick="G.autoFit(this)">Fit</button>
+  </div>
+  <button class="ctrl-rand" onclick="G.randomise()">Randomise</button>
+</div>
+
+<div class="vignette"></div>
+
+<script>
+gsap.registerPlugin(Draggable, Flip, CustomEase);
+
+// ── PHOTO DATA ─────────────────────────────────────────────────────────
+// Replace picsum URLs with Sebastian's actual photos.
+// Each entry: { url, genre, title }
+// genre must be one of: portrait | street | documentary | landscape | editorial
+
+const GENRE_META = {
+  all:          { label:'All Work',     count:86, color:'#F2EDE4', glow:'rgba(242,237,228,.07)' },
+  portrait:     { label:'Portrait',     count:20, color:'#CC1A1A', glow:'rgba(204,26,26,.10)'   },
+  street:       { label:'Street',       count:18, color:'#6A0DAD', glow:'rgba(106,13,173,.10)'  },
+  documentary:  { label:'Documentary',  count:18, color:'#1F3A93', glow:'rgba(31,58,147,.10)'   },
+  landscape:    { label:'Landscape',    count:16, color:'#CC1A1A', glow:'rgba(204,26,26,.10)'   },
+  editorial:    { label:'Editorial',    count:14, color:'#6A0DAD', glow:'rgba(106,13,173,.10)'  },
+};
+
+// Genre filter cards — [row, col] in the 8×12 grid
+const GENRE_POSITIONS = {
+  all:         [0, 0],
+  portrait:    [1, 9],
+  street:      [3, 3],
+  documentary: [5, 7],
+  landscape:   [2,11],
+  editorial:   [6, 2],
+};
+const gpSet = new Map(Object.entries(GENRE_POSITIONS).map(([g,[r,c]])=>[`${r},${c}`,g]));
+
+function buildPhotos(){
+  const genres = {
+    portrait:    Array.from({length:20},(_,i)=>({seed:100+i, title:`Figure ${['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'][i]}`})),
+    street:      Array.from({length:18},(_,i)=>({seed:200+i, title:`Helsinki ${String(i+1).padStart(2,'0')}`})),
+    documentary: Array.from({length:18},(_,i)=>({seed:300+i, title:`Document ${String(i+1).padStart(2,'0')}`})),
+    landscape:   Array.from({length:16},(_,i)=>({seed:400+i, title:`Horizon ${String(i+1).padStart(2,'0')}`})),
+    editorial:   Array.from({length:14},(_,i)=>({seed:500+i, title:`Editorial ${String(i+1).padStart(2,'0')}`})),
+  };
+  const list = [];
+  Object.entries(genres).forEach(([genre,items])=>{
+    items.forEach(({seed,title})=>{
+      list.push({ url:`https://picsum.photos/seed/${seed}/640/640`, genre, title });
+    });
+  });
+  // Shuffle
+  for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
+  return list;
+}
+
+// ── GALLERY ────────────────────────────────────────────────────────────
+class Gallery {
+  constructor(){
+    this.vp      = document.getElementById('viewport');
+    this.cw      = document.getElementById('canvasWrapper');
+    this.gc      = document.getElementById('gridContainer');
+    this.ss      = document.getElementById('splitScreen');
+    this.cb      = document.getElementById('closeBtn');
+    this.ctrl    = document.getElementById('controls');
+    this.pi      = document.getElementById('photoInfo');
+
+    this.ease    = CustomEase.create('smooth','.87,0,.13,1');
+    this.cEase   = CustomEase.create('centre','.25,.46,.45,.94');
+
+    this.cfg = { sz:320, rows:8, cols:12, zoom:.6, gap:32 };
+    this.dims = {};
+    this.photos  = [];   // photo grid items
+    this.gcards  = [];   // genre card items
+    this.all     = [];   // all grid items
+    this.zoom    = { on:false, item:null, overlay:null };
+    this.filter  = 'all';
+    this.lastPos = {x:0,y:0};
+    this.drag    = null;
+    this.tRaf    = null;
+    this.obs     = null;
+    this.photoList = buildPhotos();
+  }
+
+  // ── LAYOUT HELPERS ──────────────────────────────────────────────────
+  gapFor(z){ return z>=1?16:z>=.6?32:64 }
+
+  calcDims(gap=this.cfg.gap){
+    const {cols,rows,sz}=this.cfg;
+    const w=cols*(sz+gap)-gap, h=rows*(sz+gap)-gap;
+    this.dims={w,h,sw:w*this.cfg.zoom,sh:h*this.cfg.zoom,gap};
+    return this.dims;
+  }
+
+  pos(row,col,gap=this.cfg.gap){
+    return { x:col*(this.cfg.sz+gap), y:row*(this.cfg.sz+gap) };
+  }
+
+  // ── GENERATE GRID ───────────────────────────────────────────────────
+  generate(){
+    this.cfg.gap=this.gapFor(this.cfg.zoom);
+    this.calcDims();
+    this.cw.style.width=this.dims.w+'px';
+    this.cw.style.height=this.dims.h+'px';
+    this.gc.innerHTML='';
+    this.photos=[]; this.gcards=[]; this.all=[];
+
+    let pi=0;
+    for(let r=0;r<this.cfg.rows;r++){
+      for(let c=0;c<this.cfg.cols;c++){
+        const {x,y}=this.pos(r,c);
+        const key=`${r},${c}`;
+
+        if(gpSet.has(key)){
+          // ── GENRE CARD ───────────────────────────────────────────
+          const genre=gpSet.get(key);
+          const {label,count,color,glow}=GENRE_META[genre];
+          const el=document.createElement('div');
+          el.className='genre-card'+(genre==='all'?' active':'');
+          el.style.cssText=`left:${x}px;top:${y}px;opacity:0;--gc:${glow};--gcc:${color}`;
+          el.dataset.genre=genre;
+          el.innerHTML=`
+            <span class="gc-count">[ ${count} images ]</span>
+            <span class="gc-name">${label}</span>
+            <span class="gc-hint">click to filter</span>
+          `;
+          el.addEventListener('click',()=>this.applyFilter(genre));
+          this.gc.appendChild(el);
+          const d={el,r,c,bx:x,by:y,genre,isCard:true};
+          this.gcards.push(d); this.all.push(d);
+
+        } else {
+          // ── PHOTO ITEM ───────────────────────────────────────────
+          const photo=this.photoList[pi%this.photoList.length]; pi++;
+          const el=document.createElement('div');
+          el.className='grid-item';
+          el.style.cssText=`left:${x}px;top:${y}px;opacity:0`;
+          el.dataset.genre=photo.genre;
+
+          const img=document.createElement('img');
+          img.src=photo.url; img.alt=photo.title; img.loading='lazy';
+          el.appendChild(img);
+
+          const d={el,img,r,c,bx:x,by:y,genre:photo.genre,title:photo.title,idx:this.photos.length,isCard:false};
+          el.addEventListener('click',()=>{ if(!this.zoom.on) this.open(d); });
+          this.gc.appendChild(el);
+          this.photos.push(d); this.all.push(d);
+        }
+      }
+    }
+  }
+
+  // ── FILTER ─────────────────────────────────────────────────────────
+  applyFilter(genre){
+    this.filter=genre;
+    this.gcards.forEach(g=>g.el.classList.toggle('active',g.genre===genre));
+    this.photos.forEach(p=>{
+      const match=genre==='all'||p.genre===genre;
+      p.el.classList.toggle('filtered-out',!match);
+    });
+  }
+
+  // ── RANDOMISE ──────────────────────────────────────────────────────
+  randomise(){
+    const visible=this.photos.filter(p=>!p.el.classList.contains('filtered-out'));
+    if(visible.length<2) return;
+    const positions=visible.map(p=>({x:p.bx,y:p.by}));
+    for(let i=positions.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [positions[i],positions[j]]=[positions[j],positions[i]];
+    }
+    visible.forEach((p,i)=>{
+      p.bx=positions[i].x; p.by=positions[i].y;
+      gsap.to(p.el,{
+        left:p.bx,top:p.by,
+        duration:.75+Math.random()*.35,
+        ease:this.ease,
+        delay:Math.random()*.12,
+      });
+    });
+  }
+
+  // ── OPEN / CLOSE ───────────────────────────────────────────────────
+  mkOverlay(img){
+    const wrap=document.createElement('div');
+    wrap.className='scaling-overlay';
+    const i=document.createElement('img');
+    i.src=img.src; i.alt=img.alt;
+    wrap.appendChild(i);
+    document.body.appendChild(wrap);
+    const r=img.getBoundingClientRect();
+    gsap.set(wrap,{left:r.left,top:r.top,width:r.width,height:r.height});
+    return wrap;
+  }
+
+  open(d){
+    if(this.zoom.on) return;
+    this.zoom.on=true; this.zoom.item=d;
+    if(this.drag) this.drag.disable();
+    document.body.classList.add('zoom-mode');
+
+    const zt=document.getElementById('zoomTarget');
+    this.ss.classList.add('active');
+    gsap.to(this.ss,{opacity:1,duration:1,ease:this.ease});
+
+    this.zoom.overlay=this.mkOverlay(d.img);
+    gsap.set(d.img,{opacity:0});
+
+    Flip.fit(this.zoom.overlay,zt,{
+      duration:1.2,ease:this.ease,absolute:true,
+      onComplete:()=>this.showInfo(d),
+    });
+
+    this.ctrl.classList.add('split-mode');
+    gsap.fromTo(this.cb,{x:60,opacity:0},{x:0,opacity:1,duration:.6,ease:'power2.out',delay:.9});
+    this.cb.classList.add('active');
+
+    const sl=document.getElementById('splitLeft');
+    const sr=document.getElementById('splitRight');
+    sl.addEventListener('click',this._sa=e=>{if(e.target===e.currentTarget)this.close()});
+    sr.addEventListener('click',this._sb=e=>{if(e.target===e.currentTarget)this.close()});
+    document.addEventListener('keydown',this._kb=e=>{if(e.key==='Escape')this.close()});
+  }
+
+  showInfo(d){
+    const inf=this.pi;
+    document.getElementById('piIdx').querySelector('span').textContent=String(d.idx+1).padStart(2,'0');
+    document.getElementById('piTitle').querySelector('h1').textContent=d.title;
+    document.getElementById('piGenre').querySelector('span').textContent=`[ ${d.genre} ]`;
+
+    const idxS=document.getElementById('piIdx').querySelector('span');
+    const titH=document.getElementById('piTitle').querySelector('h1');
+    const genS=document.getElementById('piGenre').querySelector('span');
+    gsap.set([idxS,titH,genS],{opacity:0,y:28});
+    gsap.to(inf,{opacity:1,duration:.3,ease:'power2.out'});
+    gsap.to(idxS,{y:0,opacity:1,duration:.7,ease:this.ease,delay:.1});
+    gsap.to(titH,{y:0,opacity:1,duration:.7,ease:this.ease,delay:.18});
+    gsap.to(genS,{y:0,opacity:1,duration:.7,ease:this.ease,delay:.26});
+  }
+
+  close(){
+    if(!this.zoom.on||!this.zoom.item) return;
+    document.getElementById('splitLeft').removeEventListener('click',this._sa);
+    document.getElementById('splitRight').removeEventListener('click',this._sb);
+    document.removeEventListener('keydown',this._kb);
+
+    gsap.to(this.pi,{opacity:0,duration:.3});
+    gsap.to(this.cb,{x:60,opacity:0,duration:.3,ease:'power2.in'});
+    this.ctrl.classList.remove('split-mode');
+    this.ss.classList.remove('active');
+    gsap.to(this.ss,{opacity:0,duration:.7});
+    if(this.zoom.overlay) gsap.to(this.zoom.overlay,{opacity:.35,duration:.5});
+
+    Flip.fit(this.zoom.overlay,this.zoom.item.el,{
+      duration:1.2,ease:this.ease,absolute:true,
+      onComplete:()=>{
+        gsap.set(this.zoom.item.img,{opacity:1});
+        if(this.zoom.overlay){ document.body.removeChild(this.zoom.overlay); this.zoom.overlay=null; }
+        this.ss.classList.remove('active');
+        document.body.classList.remove('zoom-mode');
+        this.cb.classList.remove('active');
+        if(this.drag) this.drag.enable();
+        this.zoom.on=false; this.zoom.item=null;
+      }
+    });
+  }
+
+  // ── MOMENTUM ───────────────────────────────────────────────────────
+  throw(vx,vy){
+    if(this.tRaf) cancelAnimationFrame(this.tRaf);
+    const f=.935;
+    const tick=()=>{
+      vx*=f; vy*=f;
+      if(Math.abs(vx)<.25&&Math.abs(vy)<.25) return;
+      const b=this.bounds();
+      const x=gsap.getProperty(this.cw,'x');
+      const y=gsap.getProperty(this.cw,'y');
+      const nx=Math.max(b.minX,Math.min(b.maxX,x+vx));
+      const ny=Math.max(b.minY,Math.min(b.maxY,y+vy));
+      gsap.set(this.cw,{x:nx,y:ny});
+      this.lastPos={x:nx,y:ny};
+      this.tRaf=requestAnimationFrame(tick);
+    };
+    this.tRaf=requestAnimationFrame(tick);
+  }
+
+  bounds(){
+    const vw=innerWidth,vh=innerHeight;
+    const {sw,sh}=this.dims;
+    const m=this.cfg.gap*this.cfg.zoom;
+    return{
+      minX:sw<=vw?(vw-sw)/2:vw-sw-m, maxX:sw<=vw?(vw-sw)/2:m,
+      minY:sh<=vh?(vh-sh)/2:vh-sh-m, maxY:sh<=vh?(vh-sh)/2:m,
+    };
+  }
+
+  initDrag(){
+    if(this.drag) this.drag.kill();
+    this.calcDims(this.cfg.gap);
+    const b=this.bounds();
+    let lx,ly,lt,tvx=0,tvy=0;
+    this.drag=Draggable.create(this.cw,{
+      type:'x,y',bounds:b,edgeResistance:.82,
+      onDragStart:()=>{
+        document.body.classList.add('dragging');
+        if(this.tRaf) cancelAnimationFrame(this.tRaf);
+        lx=gsap.getProperty(this.cw,'x');
+        ly=gsap.getProperty(this.cw,'y');
+        lt=Date.now();
+      },
+      onDrag:()=>{
+        const now=Date.now(),dt=now-lt||1;
+        const cx=gsap.getProperty(this.cw,'x');
+        const cy=gsap.getProperty(this.cw,'y');
+        tvx=(cx-lx)/dt*16; tvy=(cy-ly)/dt*16;
+        lx=cx; ly=cy; lt=now;
+        this.lastPos={x:cx,y:cy};
+      },
+      onDragEnd:()=>{
+        document.body.classList.remove('dragging');
+        this.throw(tvx,tvy);
+      },
+    })[0];
+  }
+
+  // ── ZOOM CONTROLS ──────────────────────────────────────────────────
+  updZoomVal(z){ document.getElementById('zoomVal').textContent=Math.round(z*100)+'%'; }
+
+  async centre(z,gap,dur=1.1){
+    this.calcDims(gap);
+    const vw=innerWidth,vh=innerHeight;
+    const cx=(vw-this.dims.w*z)/2, cy=(vh-this.dims.h*z)/2;
+    await new Promise(res=>gsap.to(this.cw,{duration:dur,scale:z,x:cx,y:cy,ease:this.ease,onComplete:()=>{this.lastPos={x:cx,y:cy};res();}}));
+  }
+
+  async setZoom(z,btn=null){
+    if(this.zoom.on){this.close();return;}
+    const ng=this.gapFor(z);
+    this.cfg.zoom=z;
+    this.updZoomVal(z);
+    document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+
+    // 1. slide to centre at current scale
+    this.calcDims(this.cfg.gap);
+    const vw=innerWidth,vh=innerHeight;
+    const preCx=(vw-this.dims.sw)/2, preCy=(vh-this.dims.sh)/2;
+    await new Promise(res=>gsap.to(this.cw,{duration:.45,x:preCx,y:preCy,ease:this.cEase,onComplete:res}));
+
+    // 2. if gap changes, reposition items
+    if(ng!==this.cfg.gap){
+      [...this.photos,...this.gcards].forEach(it=>{
+        const nx=it.c*(this.cfg.sz+ng), ny=it.r*(this.cfg.sz+ng);
+        it.bx=nx; it.by=ny;
+        gsap.to(it.el,{left:nx,top:ny,duration:1,ease:this.ease});
+      });
+      const nw=this.cfg.cols*(this.cfg.sz+ng)-ng;
+      const nh=this.cfg.rows*(this.cfg.sz+ng)-ng;
+      gsap.to(this.cw,{width:nw,height:nh,duration:1,ease:this.ease});
+      this.cfg.gap=ng;
+    }
+
+    // 3. zoom + centre
+    await this.centre(z,ng);
+    this.calcDims(ng);
+    this.initDrag();
+  }
+
+  autoFit(btn=null){
+    if(this.zoom.on){this.close();return;}
+    const vw=innerWidth,vh=innerHeight-80;
+    const gap=this.gapFor(1);
+    const gw=this.cfg.cols*(this.cfg.sz+gap)-gap;
+    const gh=this.cfg.rows*(this.cfg.sz+gap)-gap;
+    const z=Math.max(.1,Math.min(2,Math.min((vw-80)/gw,(vh-80)/gh)));
+    this.cfg.zoom=z;
+    this.updZoomVal(z);
+    document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('on'));
+    if(btn) btn.classList.add('on');
+    this.centre(z,this.cfg.gap).then(()=>{this.calcDims(this.cfg.gap);this.initDrag();});
+  }
+
+  // ── OBSERVER ───────────────────────────────────────────────────────
+  setupObs(){
+    if(this.obs) this.obs.disconnect();
+    this.obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(this.zoom.item&&e.target===this.zoom.item.el) return;
+        gsap.to(e.target,{opacity:e.isIntersecting?1:.06,duration:.5,ease:'power2.out'});
+        e.target.classList.toggle('out-of-view',!e.isIntersecting);
+      });
+    },{threshold:.1,rootMargin:'5%'});
+    this.all.forEach(it=>this.obs.observe(it.el));
+  }
+
+  // ── INTRO ANIMATION ────────────────────────────────────────────────
+  playIntro(){
+    const {cw,cfg,all}=this;
+    const cx_off=gsap.getProperty(cw,'x');
+    const cy_off=gsap.getProperty(cw,'y');
+    const sc=gsap.getProperty(cw,'scaleX');
+    const ox=(innerWidth/2-cx_off)/sc-cfg.sz/2;
+    const oy=(innerHeight/2-cy_off)/sc-cfg.sz/2;
+
+    all.forEach((it,i)=>{
+      gsap.set(it.el,{left:ox,top:oy,scale:.78,opacity:0,zIndex:all.length-i});
+    });
+
+    all.forEach((it,i)=>{
+      gsap.to(it.el,{
+        left:it.bx,top:it.by,scale:1,opacity:1,
+        duration:.45,ease:'power2.out',
+        delay:i*(1.6/all.length),
+        onComplete:i===all.length-1?()=>{
+          all.forEach(a=>gsap.set(a.el,{zIndex:1}));
+          gsap.to(this.ctrl,{opacity:1,duration:.6,delay:.15});
+          this.ctrl.classList.add('visible');
+          setTimeout(()=>{this.initDrag();this.setupObs();},500);
+        }:null,
+      });
+    });
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────
+  init(){
+    this.cfg.gap=this.gapFor(this.cfg.zoom);
+    this.generate();
+    gsap.set(this.vp,{opacity:0});
+    gsap.set(this.cw,{scale:this.cfg.zoom});
+    this.calcDims();
+    const cx=(innerWidth-this.dims.sw)/2, cy=(innerHeight-this.dims.sh)/2;
+    gsap.set(this.cw,{x:cx,y:cy});
+    this.lastPos={x:cx,y:cy};
+    this.updZoomVal(this.cfg.zoom);
+
+    this.cb.addEventListener('click',()=>this.close());
+    window.addEventListener('resize',()=>{
+      setTimeout(()=>{
+        this.calcDims(this.cfg.gap);
+        const cx2=(innerWidth-this.dims.sw)/2, cy2=(innerHeight-this.dims.sh)/2;
+        gsap.to(this.cw,{x:cx2,y:cy2,duration:.5,ease:this.cEase});
+        this.lastPos={x:cx2,y:cy2};
+        this.initDrag();
+      },100);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown',e=>{
+      if(this.zoom.on) return;
+      if(e.key==='1') this.setZoom(.3);
+      else if(e.key==='2') this.setZoom(.6);
+      else if(e.key==='3') this.setZoom(1);
+      else if(e.key==='f'||e.key==='F') this.autoFit();
+      else if(e.key==='r'||e.key==='R') this.randomise();
+    });
+
+    gsap.to(this.vp,{
+      opacity:1,duration:.5,ease:'power2.inOut',
+      onComplete:()=>{
+        this.playIntro();
+        gsap.to('#hdr',{opacity:1,duration:1,delay:.9});
+      }
+    });
+  }
+}
+
+// ── PRELOADER ──────────────────────────────────────────────────────────
+function preload(cb){
+  const wrap=document.getElementById('preloaderEl');
+  wrap.style.cssText='position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:100000;';
+  const cv=document.createElement('canvas');
+  cv.width=cv.height=180; wrap.appendChild(cv);
+  const ctx=cv.getContext('2d');
+  const CX=90,CY=90;
+  let t=0,start=null;
+  const rings=[
+    {r:14,n:8, col:'#CC1A1A'},
+    {r:26,n:12,col:'#6A0DAD'},
+    {r:38,n:16,col:'#1F3A93'},
+    {r:50,n:20,col:'#CC1A1A'},
+  ];
+  const tick=ts=>{
+    if(!start) start=ts;
+    t+=.018;
+    ctx.clearRect(0,0,180,180);
+    rings.forEach(({r,n,col})=>{
+      for(let i=0;i<n;i++){
+        const a=(i/n)*Math.PI*2;
+        const pulse=Math.sin(t*2.5-i*.45)*2.5;
+        const x=CX+Math.cos(a)*(r+pulse);
+        const y=CY+Math.sin(a)*(r+pulse);
+        const alpha=.2+Math.sin(t*2.5-i*.4)*.65;
+        ctx.beginPath(); ctx.arc(x,y,2.2,0,Math.PI*2);
+        const a2=Math.max(.05,Math.min(1,alpha));
+        ctx.fillStyle=col+Math.round(a2*255).toString(16).padStart(2,'0');
+        ctx.fill();
+      }
+    });
+    if(ts-start<2000) requestAnimationFrame(tick);
+    else{
+      wrap.style.transition='opacity .6s'; wrap.style.opacity='0';
+      setTimeout(()=>{wrap.remove();cb();},600);
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+let G;
+document.addEventListener('DOMContentLoaded',()=>{
+  preload(()=>{ G=new Gallery(); G.init(); });
+});
+</script>
+</body>
+</html>

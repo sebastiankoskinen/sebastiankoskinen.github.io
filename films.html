@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ad Films — Sacred Noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Syne:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ── Sacred Noise · Ad Films ────────────────────────────────────
+   Paranoia Slideshow adapted from Codrops (codrops/ParanoiaSlideshow)
+   Original by Codrops, MIT License. Adapted for Sacred Noise.
+   ─────────────────────────────────────────────────────────────── */
+
+*, *::after, *::before { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --text:   #F2EDE4;
+  --dim:    rgba(242,237,228,.38);
+  --bg:     #000000;
+  --red:    #CC1A1A;
+  --pad:    28px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  cursor: none;
+  user-select: none;
+}
+
+/* GRAIN */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 900;
+  pointer-events: none; opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+  background-size: 160px; animation: grain .35s steps(2) infinite;
+}
+@keyframes grain {
+  0%  { background-position:  0px  0px; }
+  25% { background-position: -40px 15px; }
+  50% { background-position:  20px -30px; }
+  75% { background-position: -15px 40px; }
+}
+
+/* CURSOR */
+#cursor {
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%); will-change: left,top;
+}
+
+/* LOADER */
+.loading::after {
+  content: ''; position: fixed; z-index: 8000;
+  top: 50%; left: 50%;
+  width: 2px; height: 64px; margin: -32px 0 0 -1px;
+  background: var(--red);
+  animation: loadBar .7s ease-in-out infinite alternate;
+}
+@keyframes loadBar { to { height: 8px; opacity: .25; } }
+
+/* ── LAYOUT ────────────────────────────────────────────────────── */
+main {
+  display: grid;
+  width: 100%; height: 100%;
+  grid-template-columns: 20% 60% 20%;
+  grid-template-rows: 10% 1fr 20%;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────── */
+header {
+  grid-column: 1 / 4; grid-row: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--pad);
+  border-bottom: 1px solid rgba(242,237,228,.08);
+}
+.back-link {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--dim); text-decoration: none; cursor: none;
+  transition: color .2s;
+}
+.back-link:hover { color: var(--text); }
+
+.page-title {
+  font-family: 'Pirata One', cursive;
+  font-size: clamp(18px,2vw,30px); letter-spacing: .05em; font-weight: normal;
+}
+.page-hint {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--dim);
+}
+
+/* ── SLIDESHOW ───────────────────────────────────────────────────── */
+.slideshow {
+  grid-column: 1 / 4; grid-row: 2;
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
+  grid-template-areas: 'nav-prev gallery nav-next';
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Main gallery */
+.gallery {
+  grid-area: gallery;
+  width: 100%; height: 88%;
+  overflow: hidden; position: relative;
+  cursor: none;
+  border-radius: 4px;
+}
+
+/* Subtle play overlay on hover */
+.gallery__play-hint {
+  position: absolute; inset: 0; z-index: 4;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .35s;
+  background: rgba(0,0,0,.25);
+}
+.gallery__play-hint span {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  letter-spacing: .25em; text-transform: uppercase;
+  color: var(--text); border: 1px solid rgba(242,237,228,.4);
+  padding: 13px 28px;
+}
+.gallery:hover .gallery__play-hint { opacity: 1; }
+
+/* Shared slide styles */
+.slides { position: relative; width: 100%; height: 100%; }
+
+.slides__img {
+  overflow: hidden; position: absolute; inset: 0;
+  opacity: 0; pointer-events: none;
+  will-change: opacity, transform;
+}
+.slides__img--current { opacity: 1; pointer-events: auto; z-index: 10; }
+
+.slides__img-inner {
+  width: 100%; height: 100%;
+  background-size: cover; background-position: 50% 50%;
+  will-change: filter, transform;
+}
+
+/* ── NAV ──────────────────────────────────────────────────────────── */
+.nav {
+  display: flex; flex-direction: column; align-items: center;
+  cursor: none; padding: var(--pad); gap: 14px; z-index: 20;
+}
+.nav--prev { grid-area: nav-prev; align-items: flex-end; }
+.nav--next { grid-area: nav-next; align-items: flex-start; }
+
+.nav__arrow {
+  font-size: 20px; color: var(--dim); transition: color .2s; line-height: 1;
+}
+.nav:hover .nav__arrow { color: var(--text); }
+
+/* Thumbnail pill */
+.nav__imgwrap {
+  width: 44px; height: 68px; border-radius: 22px;
+  overflow: hidden; position: relative; background: #111;
+  border: 1px solid rgba(242,237,228,.1); transition: border-color .2s;
+}
+.nav:hover .nav__imgwrap { border-color: rgba(242,237,228,.35); }
+
+/* Nav slides work like main but sized to thumbnail */
+.nav .slides__img {
+  width: 44px; height: 68px;
+}
+.nav .slides__img-inner {
+  width: 44px; height: 68px;
+}
+
+.nav__text {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--dim); transition: color .2s;
+  writing-mode: vertical-rl;
+}
+.nav--prev .nav__text { transform: rotate(180deg); }
+.nav:hover .nav__text { color: var(--text); }
+
+/* ── FILM INFO ────────────────────────────────────────────────────── */
+.film-info {
+  grid-column: 1 / 4; grid-row: 3;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px;
+  padding: 0 var(--pad) var(--pad);
+}
+
+.film-titles {
+  position: relative; height: 56px;
+  width: 100%; display: flex; justify-content: center;
+  overflow: hidden;
+}
+
+.film-title {
+  position: absolute;
+  font-family: 'Pirata One', cursive;
+  font-size: clamp(24px, 3.2vw, 48px);
+  letter-spacing: .04em; font-weight: normal;
+  color: var(--text); opacity: 0;
+  will-change: opacity, transform; white-space: nowrap;
+}
+
+.film-sub {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--dim);
+  height: 18px; overflow: hidden; transition: opacity .3s;
+}
+
+.play-btn {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--dim); background: none;
+  border: 1px solid rgba(242,237,228,.15);
+  padding: 10px 22px; cursor: none;
+  transition: color .2s, border-color .2s; margin-top: 2px;
+}
+.play-btn:hover { color: var(--text); border-color: rgba(242,237,228,.5); }
+
+/* ── VIDEO MODAL ──────────────────────────────────────────────────── */
+.video-modal {
+  position: fixed; inset: 0; z-index: 5000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .35s;
+}
+.video-modal.open { opacity: 1; pointer-events: all; }
+
+.video-modal__bg {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.93); cursor: none;
+}
+.video-modal__wrap {
+  position: relative; z-index: 1;
+  width: min(90vw, 1280px); aspect-ratio: 16/9;
+}
+.video-modal__wrap iframe {
+  width: 100%; height: 100%; border: none; display: block;
+}
+.video-modal__close {
+  position: absolute; top: -46px; right: 0;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--dim); background: none;
+  border: 1px solid rgba(242,237,228,.15);
+  padding: 9px 18px; cursor: none;
+  transition: color .2s, border-color .2s;
+}
+.video-modal__close:hover { color: var(--text); border-color: rgba(242,237,228,.5); }
+</style>
+</head>
+<body class="loading">
+
+<!-- CURSOR: Seraphim -->
+<div id="cursor">
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+    <path d="M19 19C16 13 11 6 15 4C18 7 19 13 19 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 18C12 11 11 5 15 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 19C28 13 33 6 29 4C26 7 25 13 25 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 18C32 11 33 5 29 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M18 22C12 19 5 20 2 24C5 28 12 27 18 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path d="M17 23C11 20 4 21 2 24" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M17 25C11 23 5 24 3 27" stroke="rgba(242,237,228,.3)" stroke-width=".4" fill="none"/>
+    <path d="M26 22C32 19 39 20 42 24C39 28 32 27 26 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path d="M27 23C33 20 40 21 42 24" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M27 25C33 23 39 24 41 27" stroke="rgba(242,237,228,.3)" stroke-width=".4" fill="none"/>
+    <path d="M19 25C16 31 11 38 15 40C18 37 19 31 19 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 26C12 33 11 39 15 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 25C28 31 33 38 29 40C26 37 25 31 25 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 26C32 33 33 39 29 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <circle cx="22" cy="22" r="5.5" stroke="rgba(242,237,228,.85)" stroke-width=".7" fill="none"/>
+    <circle cx="20" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+    <circle cx="24" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+  </svg>
+</div>
+
+<main>
+  <header>
+    <a href="index.html" class="back-link">← Sacred Noise</a>
+    <h1 class="page-title">Ad Films</h1>
+    <span class="page-hint">[ Flick Reel ]</span>
+  </header>
+
+  <div class="slideshow">
+
+    <!-- NAV PREV -->
+    <nav class="nav nav--prev" id="navPrev">
+      <span class="nav__arrow">←</span>
+      <div class="nav__imgwrap">
+        <div class="slides" id="slidesNavPrev"></div>
+      </div>
+      <span class="nav__text">Prev</span>
+    </nav>
+
+    <!-- MAIN GALLERY -->
+    <div class="gallery" id="gallery">
+      <div class="gallery__play-hint"><span>Play Film →</span></div>
+      <div class="slides" id="slidesMain"></div>
+    </div>
+
+    <!-- NAV NEXT -->
+    <nav class="nav nav--next" id="navNext">
+      <span class="nav__arrow">→</span>
+      <div class="nav__imgwrap">
+        <div class="slides" id="slidesNavNext"></div>
+      </div>
+      <span class="nav__text">Next</span>
+    </nav>
+
+  </div><!-- .slideshow -->
+
+  <div class="film-info">
+    <div class="film-titles" id="filmTitles"></div>
+    <div class="film-sub"    id="filmSub"></div>
+    <button class="play-btn" id="playBtn">Play Film →</button>
+  </div>
+</main>
+
+<!-- VIDEO MODAL -->
+<div class="video-modal" id="videoModal">
+  <div class="video-modal__bg" id="modalBg"></div>
+  <div class="video-modal__wrap">
+    <button class="video-modal__close" id="modalClose">✕ Close</button>
+    <iframe id="videoIframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// FILMS — fill in your actual titles, clients and years below
+// ═══════════════════════════════════════════════════════════════════
+const FILMS = [
+  { id:'6905ZBfH9Jc', title:'Black Horse, Tankilla',                      client:'Black Horse',   year:'2025' },
+  { id:'gNf6mzCQjo0', title:'Black Horse, Bestman',                       client:'Black Horse',   year:'2022' },
+  { id:'_bNDSrdRh9s', title:'Black Horse, Pesis',                         client:'Black Horse',   year:'2022' },
+  { id:'qDcslzbFCk8', title:'Karhu, Olut suomalaiseen elämänmenoon', client:'Sinebrychoff', year:'2023' },
+  { id:'SQ3ncMJEiHQ', title:'Karhu, Se parempi lager',                    client:'Sinebrychoff', year:'2022' },
+  { id:'Y9f-r7W-b64', title:'Karhu, Älä kysy tyhmiä',     client:'Sinebrychoff', year:'2021' },
+];
+
+const thumb = id => `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+
+// ── BUILD DOM ─────────────────────────────────────────────────────
+function buildSlides(containerEl) {
+  FILMS.forEach((film, i) => {
+    const outer = document.createElement('div');
+    outer.className = 'slides__img' + (i === 0 ? ' slides__img--current' : '');
+    const inner = document.createElement('div');
+    inner.className = 'slides__img-inner';
+    inner.style.backgroundImage = `url(${thumb(film.id)})`;
+    outer.appendChild(inner);
+    containerEl.appendChild(outer);
+  });
+}
+
+function buildTitles() {
+  const container = document.getElementById('filmTitles');
+  FILMS.forEach((film, i) => {
+    const el = document.createElement('h2');
+    el.className = 'film-title';
+    el.textContent = film.title;
+    if (i === 0) gsap.set(el, { opacity: 1, y: '0%' });
+    container.appendChild(el);
+  });
+}
+
+buildSlides(document.getElementById('slidesMain'));
+buildSlides(document.getElementById('slidesNavPrev'));
+buildSlides(document.getElementById('slidesNavNext'));
+buildTitles();
+
+document.getElementById('filmSub').textContent =
+  `${FILMS[0].client} · ${FILMS[0].year}`;
+
+// ═══════════════════════════════════════════════════════════════════
+// SLIDESHOW CLASS — core Paranoia animation
+// Adapted from Codrops ParanoiaSlideshow (MIT)
+// Effect: outer slides left/right while inner slides opposite direction
+// + brightness flash creates the overexposed "paranoia" look
+// ═══════════════════════════════════════════════════════════════════
+class Slideshow {
+  constructor(containerEl, options = {}) {
+    this.el       = containerEl;
+    this.slides   = [...containerEl.querySelectorAll('.slides__img')];
+    this.total    = this.slides.length;
+    this.current  = 0;
+    this.dur      = options.duration       ?? 1.2;
+    this.ease     = options.ease           ?? 'power3.inOut';
+    this.filters  = options.filtersAnimation ?? true;
+    this.isAnim   = false;
+  }
+
+  setInitial(pos = 0) {
+    this.current = pos;
+    this.slides.forEach((s, i) => {
+      s.classList.toggle('slides__img--current', i === pos);
+      gsap.set(s, { opacity: i === pos ? 1 : 0, x: '0%' });
+      gsap.set(s.children[0], { x: '0%', filter: 'brightness(100%)' });
+    });
+  }
+
+  navigate(dir) {
+    if (this.isAnim) return;
+    this.isAnim = true;
+
+    const prevIdx = this.current;
+    this.current  = dir === 'next'
+      ? (this.current + 1) % this.total
+      : (this.current - 1 + this.total) % this.total;
+
+    const cur = { outer: this.slides[prevIdx],       inner: this.slides[prevIdx].children[0] };
+    const nxt = { outer: this.slides[this.current],  inner: this.slides[this.current].children[0] };
+
+    const tl = gsap.timeline({
+      defaults: { duration: this.dur, ease: this.ease },
+      onComplete: () => {
+        cur.outer.classList.remove('slides__img--current');
+        nxt.outer.classList.add('slides__img--current');
+        this.isAnim = false;
+      }
+    });
+
+    // Reveal: outer goes one way, inner goes the other — creates parallax slide
+    tl.set(nxt.outer, { opacity: 1 })
+      .to(cur.outer, {
+        x: dir === 'next' ? '-101%' : '101%',
+        onComplete: () => gsap.set(cur.outer, { x: '0%', opacity: 0 })
+      }, 0)
+      .to(cur.inner, {
+        x: dir === 'next' ?  '101%' : '-101%',
+        onComplete: () => gsap.set(cur.inner, { x: '0%' })
+      }, 0);
+
+    // Brightness flash — the "paranoia" overexposure
+    if (this.filters) {
+      tl.to(cur.inner, {
+        startAt: { filter: 'brightness(100%)' },
+        filter: 'brightness(600%)',
+        onComplete: () => gsap.set(cur.inner, { filter: 'brightness(100%)' })
+      }, 0)
+      .to(nxt.inner, {
+        startAt: { filter: 'brightness(600%)' },
+        filter:  'brightness(100%)'
+      }, 0);
+    }
+  }
+
+  next() { this.navigate('next'); }
+  prev() { this.navigate('prev'); }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+const N = FILMS.length;
+const ssMain    = new Slideshow(document.getElementById('slidesMain'));
+const ssNavPrev = new Slideshow(document.getElementById('slidesNavPrev'), { duration: 1, filtersAnimation: false });
+const ssNavNext = new Slideshow(document.getElementById('slidesNavNext'), { duration: 1, filtersAnimation: false });
+
+ssMain.setInitial(0);
+ssNavPrev.setInitial(N - 1);  // shows last (wraps prev of 0)
+ssNavNext.setInitial(1);       // shows second (next of 0)
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+const bodyEl    = document.body;
+const titleEls  = [...document.querySelectorAll('.film-title')];
+const subEl     = document.getElementById('filmSub');
+
+function onNav(dir) {
+  if (ssMain.isAnim) return;
+
+  // Title slide out
+  gsap.to(titleEls[ssMain.current], {
+    duration: ssMain.dur / 2,
+    ease: 'power3.in',
+    y:    dir === 'next' ? '-120%' : '120%',
+    opacity: 0
+  });
+
+  // Body background paranoia flash — deep blood red
+  gsap.timeline()
+    .to(bodyEl, { duration: ssMain.dur / 2, ease: 'power3.in', backgroundColor: '#180101' })
+    .to(bodyEl, { duration: ssMain.dur,     ease: 'power3',    backgroundColor: '#000000' });
+
+  ssMain[dir]();
+  ssNavPrev[dir]();
+  ssNavNext[dir]();
+
+  // Title slide in
+  gsap.to(titleEls[ssMain.current], {
+    duration: ssMain.dur / 2,
+    ease: 'power3',
+    startAt: { y: dir === 'next' ? '120%' : '-120%', opacity: 0 },
+    y: '0%',
+    opacity: 1,
+    delay: ssMain.dur / 2
+  });
+
+  // Update client · year
+  setTimeout(() => {
+    const f = FILMS[ssMain.current];
+    subEl.textContent = `${f.client} · ${f.year}`;
+  }, ssMain.dur * 600);
+}
+
+document.getElementById('navPrev').addEventListener('click', () => onNav('prev'));
+document.getElementById('navNext').addEventListener('click', () => onNav('next'));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') onNav('next');
+  if (e.key === 'ArrowLeft')  onNav('prev');
+});
+
+// ── VIDEO MODAL ───────────────────────────────────────────────────
+function openModal() {
+  const { id } = FILMS[ssMain.current];
+  window.open(`https://www.youtube.com/watch?v=${id}`, '_blank');
+}
+
+document.getElementById('gallery').addEventListener('click', openModal);
+document.getElementById('playBtn').addEventListener('click', openModal);
+
+// ── CURSOR ────────────────────────────────────────────────────────
+const cursorEl = document.getElementById('cursor');
+let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function loop() {
+  requestAnimationFrame(loop);
+  cx += (mx - cx) * .10;
+  cy += (my - cy) * .10;
+  cursorEl.style.left = cx + 'px';
+  cursorEl.style.top  = cy + 'px';
+})();
+
+// ── PRELOAD & REMOVE LOADER ───────────────────────────────────────
+Promise.all(
+  FILMS.map(f => new Promise(res => {
+    const img = new Image();
+    img.onload = img.onerror = res;
+    img.src = thumb(f.id);
+  }))
+).then(() => bodyEl.classList.remove('loading'));
+</script>
+</body>
+</html>
