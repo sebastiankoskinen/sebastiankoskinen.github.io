@@ -56,6 +56,10 @@ body::before {
   transform: translate(-50%,-50%); will-change: left,top;
 }
 
+.wm{animation:wingFlap 2.4s ease-in-out infinite}
+.wm.r{animation-delay:.15s}
+@keyframes wingFlap{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}
+
 /* LOADER */
 .loading::after {
   content: ''; position: fixed; z-index: 8000;
@@ -265,12 +269,12 @@ header {
     <path d="M16 18C12 11 11 5 15 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
     <path d="M25 19C28 13 33 6 29 4C26 7 25 13 25 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
     <path d="M28 18C32 11 33 5 29 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
-    <path d="M18 22C12 19 5 20 2 24C5 28 12 27 18 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
-    <path d="M17 23C11 20 4 21 2 24" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
-    <path d="M17 25C11 23 5 24 3 27" stroke="rgba(242,237,228,.3)" stroke-width=".4" fill="none"/>
-    <path d="M26 22C32 19 39 20 42 24C39 28 32 27 26 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
-    <path d="M27 23C33 20 40 21 42 24" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
-    <path d="M27 25C33 23 39 24 41 27" stroke="rgba(242,237,228,.3)" stroke-width=".4" fill="none"/>
+    <path class="wm"   d="M18 22C12 19 5 20 2 24C5 28 12 27 18 24"   stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm"   d="M17 23C11 20 4 21 2 24"                     stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm"   d="M17 25C11 23 5 24 3 27"                     stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
+    <path class="wm r" d="M26 22C32 19 39 20 42 24C39 28 32 27 26 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm r" d="M27 23C33 20 40 21 42 24"                   stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm r" d="M27 25C33 23 39 24 41 27"                   stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
     <path d="M19 25C16 31 11 38 15 40C18 37 19 31 19 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
     <path d="M16 26C12 33 11 39 15 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
     <path d="M25 25C28 31 33 38 29 40C26 37 25 31 25 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
