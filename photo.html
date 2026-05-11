@@ -20,6 +20,7 @@
   --text:#F2EDE4;  --dim:rgba(242,237,228,.38);
   --red:#CC1A1A;   --purple:#6A0DAD; --blue:#1F3A93;
   --sz:320px;
+  --sh:213px;
 }
 
 html,body{
@@ -79,7 +80,7 @@ body::before{
 /* ── PHOTO ITEMS ────────────────────────────────────────────────── */
 .grid-item{
   position:absolute;
-  width:var(--sz);height:var(--sz);
+  width:var(--sz);height:var(--sh);
   background:var(--dark);cursor:pointer;
   will-change:transform,opacity;
   z-index:1;overflow:hidden;
@@ -95,7 +96,7 @@ body::before{
 /* ── GENRE CARDS ────────────────────────────────────────────────── */
 .genre-card{
   position:absolute;
-  width:var(--sz);height:var(--sz);
+  width:var(--sz);height:var(--sh);
   background:var(--surface);
   border:1px solid rgba(242,237,228,.1);
   cursor:pointer;will-change:transform,opacity;z-index:1;
@@ -179,7 +180,7 @@ body::before{
   position:fixed;top:0;left:0;z-index:3;
   pointer-events:none;will-change:transform;opacity:1!important;
 }
-.scaling-overlay img{width:100%;height:100%;object-fit:cover;display:block}
+.scaling-overlay img{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 
 /* Close button */
 .close-btn{
@@ -396,7 +397,7 @@ class Gallery {
     this.ease    = CustomEase.create('smooth','.87,0,.13,1');
     this.cEase   = CustomEase.create('centre','.25,.46,.45,.94');
 
-    this.cfg = { sz:320, rows:8, cols:12, zoom:.6, gap:32 };
+    this.cfg = { sz:320, sh:213, rows:8, cols:12, zoom:.6, gap:32 };
     this.dims = {};
     this.photos  = [];   // photo grid items
     this.gcards  = [];   // genre card items
@@ -415,13 +416,13 @@ class Gallery {
 
   calcDims(gap=this.cfg.gap){
     const {cols,rows,sz}=this.cfg;
-    const w=cols*(sz+gap)-gap, h=rows*(sz+gap)-gap;
+    const sh=this.cfg.sh||sz; const w=cols*(sz+gap)-gap, h=rows*(sh+gap)-gap;
     this.dims={w,h,sw:w*this.cfg.zoom,sh:h*this.cfg.zoom,gap};
     return this.dims;
   }
 
   pos(row,col,gap=this.cfg.gap){
-    return { x:col*(this.cfg.sz+gap), y:row*(this.cfg.sz+gap) };
+    return { x:col*(this.cfg.sz+gap), y:row*((this.cfg.sh||this.cfg.sz)+gap) };
   }
 
   // ── GENERATE GRID ───────────────────────────────────────────────────
@@ -678,12 +679,12 @@ class Gallery {
     // 2. if gap changes, reposition items
     if(ng!==this.cfg.gap){
       [...this.photos,...this.gcards].forEach(it=>{
-        const nx=it.c*(this.cfg.sz+ng), ny=it.r*(this.cfg.sz+ng);
+        const nx=it.c*(this.cfg.sz+ng), ny=it.r*((this.cfg.sh||this.cfg.sz)+ng);
         it.bx=nx; it.by=ny;
         gsap.to(it.el,{left:nx,top:ny,duration:1,ease:this.ease});
       });
       const nw=this.cfg.cols*(this.cfg.sz+ng)-ng;
-      const nh=this.cfg.rows*(this.cfg.sz+ng)-ng;
+      const nh=this.cfg.rows*((this.cfg.sh||this.cfg.sz)+ng)-ng;
       gsap.to(this.cw,{width:nw,height:nh,duration:1,ease:this.ease});
       this.cfg.gap=ng;
     }
@@ -699,7 +700,7 @@ class Gallery {
     const vw=innerWidth,vh=innerHeight-80;
     const gap=this.gapFor(1);
     const gw=this.cfg.cols*(this.cfg.sz+gap)-gap;
-    const gh=this.cfg.rows*(this.cfg.sz+gap)-gap;
+    const gh=this.cfg.rows*((this.cfg.sh||this.cfg.sz)+gap)-gap;
     const z=Math.max(.1,Math.min(2,Math.min((vw-80)/gw,(vh-80)/gh)));
     this.cfg.zoom=z;
     this.updZoomVal(z);
@@ -728,7 +729,7 @@ class Gallery {
     const cy_off=gsap.getProperty(cw,'y');
     const sc=gsap.getProperty(cw,'scaleX');
     const ox=(innerWidth/2-cx_off)/sc-cfg.sz/2;
-    const oy=(innerHeight/2-cy_off)/sc-cfg.sz/2;
+    const oy=(innerHeight/2-cy_off)/sc-(cfg.sh||cfg.sz)/2;
 
     all.forEach((it,i)=>{
       gsap.set(it.el,{left:ox,top:oy,scale:.78,opacity:0,zIndex:all.length-i});
