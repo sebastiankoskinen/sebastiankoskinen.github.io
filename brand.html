@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand &amp; Concepts — Sacred Noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Syne:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --text:#F2EDE4; --dim:rgba(242,237,228,.38);
+  --bg:#000; --surface:#0d0d0d;
+  --red:#CC1A1A; --purple:#6A0DAD; --blue:#1F3A93;
+  --pad:48px;
+}
+
+html,body{width:100%;background:var(--bg);color:var(--text);font-family:"Syne",sans-serif;-webkit-font-smoothing:antialiased;cursor:none;user-select:none}
+
+body::before{content:"";position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.05;
+background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+background-size:160px;animation:grain .35s steps(2) infinite}
+@keyframes grain{0%{background-position:0 0}25%{background-position:-40px 15px}50%{background-position:20px -30px}75%{background-position:-15px 40px}}
+
+/* CURSOR */
+#cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:left,top}
+.wm{animation:wingFlap 2.4s ease-in-out infinite}
+.wm.r{animation-delay:.15s}
+@keyframes wingFlap{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}
+*{cursor:none!important}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:800;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px var(--pad);
+  border-bottom:1px solid rgba(242,237,228,.07);
+  background:rgba(0,0,0,.92);backdrop-filter:blur(14px);
+}
+.back-link{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .2s}
+.back-link:hover{color:var(--text)}
+.page-title{font-family:"Pirata One",cursive;font-size:clamp(20px,2.2vw,32px);letter-spacing:.05em;font-weight:normal}
+.page-hint{font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+
+/* CATEGORY NAV */
+.cat-nav{
+  position:sticky;top:73px;z-index:700;
+  display:flex;align-items:center;gap:32px;
+  padding:16px var(--pad);
+  background:rgba(0,0,0,.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(242,237,228,.04);
+}
+.cat-nav-link{
+  font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color .2s;position:relative;
+  padding-bottom:4px;
+}
+.cat-nav-link::after{content:"";position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--red);transition:width .3s}
+.cat-nav-link:hover{color:var(--text)}
+.cat-nav-link.active{color:var(--text)}
+.cat-nav-link.active::after{width:100%}
+
+/* MAIN */
+main{padding:0 var(--pad) 120px}
+
+/* CATEGORY SECTION HEADER */
+.cat-section{padding-top:20px}
+.cat-header{
+  display:flex;align-items:center;gap:20px;
+  padding:64px 0 48px;
+}
+.cat-header::before,.cat-header::after{content:"";flex:1;height:1px;background:rgba(242,237,228,.1)}
+.cat-label{
+  font-family:"Space Mono",monospace;font-size:9px;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--dim);white-space:nowrap;
+}
+
+/* CLIENT ENTRY */
+.client{
+  display:grid;
+  grid-template-columns:1fr 1.6fr;
+  gap:64px;
+  align-items:start;
+  padding:56px 0;
+  border-bottom:1px solid rgba(242,237,228,.06);
+  opacity:0;transform:translateY(28px);
+  transition:opacity .8s ease, transform .8s ease;
+}
+.client:last-child{border-bottom:none}
+.client.visible{opacity:1;transform:translateY(0)}
+
+/* LEFT COLUMN */
+.client-text{position:sticky;top:140px;padding-right:16px}
+.client-name{
+  font-family:"Pirata One",cursive;
+  font-size:clamp(32px,4vw,56px);
+  letter-spacing:.03em;font-weight:normal;
+  line-height:1;margin-bottom:20px;
+  color:var(--text);
+}
+.client-role{
+  font-family:"Space Mono",monospace;font-size:10px;
+  letter-spacing:.12em;color:var(--dim);
+  margin-bottom:16px;line-height:1.8;
+}
+.client-tags{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-bottom:28px;
+}
+.tag{
+  font-family:"Space Mono",monospace;font-size:8px;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;
+  border:1px solid rgba(242,237,228,.15);
+  color:rgba(242,237,228,.45);
+}
+.client-quote{
+  font-family:"Syne",sans-serif;font-size:14px;
+  line-height:1.85;color:rgba(242,237,228,.65);
+  font-style:italic;
+}
+
+/* RIGHT COLUMN */
+.client-img{
+  width:100%;
+  overflow:hidden;
+  will-change:transform;
+}
+.client-img img{
+  width:100%;height:auto;
+  display:block;
+  object-fit:contain;
+}
+</style>
+</head>
+<body>
+
+<div id="cursor">
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+    <path d="M19 19C16 13 11 6 15 4C18 7 19 13 19 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 18C12 11 11 5 15 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 19C28 13 33 6 29 4C26 7 25 13 25 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 18C32 11 33 5 29 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm"   d="M18 22C12 19 5 20 2 24C5 28 12 27 18 24"   stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm"   d="M17 23C11 20 4 21 2 24"                     stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm"   d="M17 25C11 23 5 24 3 27"                     stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
+    <path class="wm r" d="M26 22C32 19 39 20 42 24C39 28 32 27 26 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm r" d="M27 23C33 20 40 21 42 24"                   stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm r" d="M27 25C33 23 39 24 41 27"                   stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
+    <path d="M19 25C16 31 11 38 15 40C18 37 19 31 19 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 26C12 33 11 39 15 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 25C28 31 33 38 29 40C26 37 25 31 25 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 26C32 33 33 39 29 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <circle cx="22" cy="22" r="5.5" stroke="rgba(242,237,228,.85)" stroke-width=".7" fill="none"/>
+    <circle cx="20" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+    <circle cx="24" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+  </svg>
+</div>
+
+<div class="header">
+  <a href="index.html" class="back-link">&larr; Sacred Noise</a>
+  <h1 class="page-title">Brand &amp; Concepts</h1>
+  <span class="page-hint">[ Work &amp; Thinking ]</span>
+</div>
+
+<nav class="cat-nav" id="catNav">
+  <a href="#concepts" class="cat-nav-link active" data-target="concepts">Concepts</a>
+  <a href="#branding" class="cat-nav-link" data-target="branding">Branding</a>
+</nav>
+
+<main id="main"></main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CLIENT DATA
+// ─ img: filename to upload to GitHub root as that name
+//   e.g. https://sebastiankoskinen.github.io/karhu-work.png
+// ═══════════════════════════════════════════════════════════════════
+const CLIENTS = [
+  // ── CONCEPTS ──────────────────────────────────────────────────
+  {
+    cat: "concepts",
+    name: "Karhu",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Branding | Campaigns | Social media | Product design | Radio | Films | Print | Influencers | Tone of voice | Collaborations | Events",
+    quote: "Imagine being a huge beer connoisseur and beverage nerd and then getting to work with one of your favorite (beer) brands. Well, been there and done that. Writing a whole new chapter for Karhu and taking the brand to the next level was beyond amazing. Missing it so much that my heart is bleeding even as I\u2019m writing this.",
+    img: "karhu-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Black Horse",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Branding | Campaigns | Social media | Films | Tone of voice | Collaborations",
+    quote: "It\u2019s not every day you get to make an inside joke you\u2019ve been throwing around with your friends a marketing concept for an iconic brand. Turns out it helps if the client, director, and basically everyone in your current professional orbit buy your \u201chuman truth\u201d and get super excited about it. A brainchild of mine, this concept about adjusting dances, chafing shuffles, wedgie waltzes, and general wriggling has been a source of infinite joy.",
+    img: "blackhorse-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Konecranes",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Branding | Campaigns | Social media | Films | Web design | Visual design",
+    quote: "Breaking conventions as a proper modern-day business iconoclast is fun. Konecranes is in the industry where everyone pushes out marketing that is indistinguishable from each other. Big concrete machines in big concrete yards. Thus, it was very refreshing to create a multi-year concept and a campaign that turns the macro lens on the industry. On to the little details\u2014tech, patents, innovations\u2014that drive success.",
+    img: "konecranes-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Instagrid",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Branding | Campaigns | Social media | Films | Web design | Visual design | Brand imagery | Impact reporting",
+    quote: "Here\u2019s a brand that is about to put a stop to the reign of 100+ year old technology. Offering an alternative to nasty combustion generators, Instagrid is a scale-up taking on the world and making it a better place for all. That requires a strong brand\u2014and an awful lot of assets. We helped Instagrid to put on the big boy pants and take the lead by crafting multiple brand assets, website, interactive impact report, and more.",
+    img: "instagrid-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Sinebrychoff (misc.)",
+    role: "Senior Creative | Copywriter",
+    work: "Branding | Campaigns | Social media | Films | Print | Influencers | Tone of voice | Visual design",
+    quote: "Sinebrychoff was Reaktor Creative\u2019s first client. And back then, we had like four people. Before growing our team, this meant juggling multiple brands for our few designers. Highlights include creating the new streetwise concept for Battery, a slogan for Crisp, and writing multiple back-of-pack texts (it\u2019s hard to explain how passionate I\u2019m about these\u2026 holding a product with your text in it in a store is just something else\u2026) for some of my favorite beverages.",
+    img: "sinebrychoff-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Moomin",
+    role: "Senior Content Designer | Copywriter",
+    work: "Copywriting | Content Design | Translations | Tone of voice guidelines | Brand work",
+    quote: "Few Finnish brands are as iconic and world-famous as The Moomin, so getting to break new ground in the Moominvalley was a copywriter\u2019s dream. The Moomin brand had basically never before allowed new original textual content to be written, but the digital experience we created for the brand\u2019s 80th anniversary was an exception. Needless to say, that made it all exceptionally more meaningful.",
+    img: "moomin-work.png"
+  },
+  {
+    cat: "concepts",
+    name: "Sitra",
+    role: "Creative Lead | Copywriter | Senior Content Designer",
+    work: "Copywriting | Content Design | Concept design",
+    quote: "Work can be meaningful without aspirations to save the world, but there\u2019s no denying that doing a good thing makes the daily grind just so much better. Together with Sitra, we launched a platform 100 fiksua arjen tekoa and El\u00e4m\u00e4ntapatesti. I personally didn\u2019t have huge expectations, but then suddenly hundreds of thousands of Finns visited the site and did the test, and every media in Finland (and many abroad) were writing about \u2019em. It went viral, was licensed abroad, and became a cultural thing for many months, even years, to come. To this day, one of my favorite works.",
+    img: "sitra-work.png"
+  },
+  // ── BRANDING ──────────────────────────────────────────────────
+  {
+    cat: "branding",
+    name: "Mallow",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Branding | Naming | Mission | Brand story | Tone of voice | Brand promise | Website copy | Sales deck",
+    quote: "Short story short! Reaktor\u2019s ecosystem has around 40+ companies. Back in 2021, a couple of Azure wizards\u2014the best of the best in Finland\u2014wanted to start a company and join the ecosystem, but they lacked the brand. Heck, they even lacked a name. I helped them create \u2019em. Today, they\u2019ve grown into a true powerhouse, and I\u2019m very proud to have been a part of their origin story.",
+    img: "mallow-work.png"
+  },
+  {
+    cat: "branding",
+    name: "Digiphant (Kalmar)",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Naming | Brand promise | Tagline",
+    quote: "Kalmar\u2019s digital unit wanted a name, a brand promise, and taglines. So, digital stuff in the business of lifting? How about Digiphant? After that, the brand basically wrote itself.",
+    img: "digiphant-work.png"
+  },
+  {
+    cat: "branding",
+    name: "A-lehdet",
+    role: "Senior Creative | Copywriter",
+    work: "Brand promise | Price promise | Guidelines",
+    quote: "A different kind of gig for sure. Much of the work was workshopping and writing a lengthy guide to help A-lehdet make the brand and price promises come to life.",
+    img: "alehdet-work.png"
+  },
+  {
+    cat: "branding",
+    name: "Reaktor",
+    role: "Senior Creative | Copywriter | Creative Lead",
+    work: "Vision wording | Mission wording | Values wording | Case studies | Marketing | RC social media lead",
+    quote: "I\u2019m not being ironic when I say I\u2019m very stoked about stuff like visions, missions, and values. That must be the former philosophy major and current philosophy lover in me. A pet-project of our CEO, I was asked to distill the thousands of data points into meaningful words that both serve the business but also honor Reaktor\u2019s unique culture and reflect what people actually think about their company. Additionally, been hustling all sorts of internal things at Reaktor (Creative).",
+    img: "reaktor-work.png"
+  },
+];
+
+const BASE = "https://sebastiankoskinen.github.io/";
+
+// ── BUILD PAGE ────────────────────────────────────────────────────
+const main = document.getElementById("main");
+const cats = ["concepts","branding"];
+
+cats.forEach(cat => {
+  const section = document.createElement("section");
+  section.className = "cat-section";
+  section.id = cat;
+
+  const hdr = document.createElement("div");
+  hdr.className = "cat-header";
+  hdr.innerHTML = `<span class="cat-label">${cat === "concepts" ? "Concepts" : "Branding"}</span>`;
+  section.appendChild(hdr);
+
+  CLIENTS.filter(c => c.cat === cat).forEach(c => {
+    const tags = c.work.split("|").map(t => `<span class="tag">${t.trim()}</span>`).join("");
+
+    const entry = document.createElement("div");
+    entry.className = "client";
+    entry.innerHTML = `
+      <div class="client-text">
+        <h2 class="client-name">${c.name}</h2>
+        <p class="client-role">${c.role}</p>
+        <div class="client-tags">${tags}</div>
+        <p class="client-quote">${c.quote}</p>
+      </div>
+      <div class="client-img">
+        <img src="${BASE}${c.img}" alt="${c.name} work" loading="lazy">
+      </div>
+    `;
+    section.appendChild(entry);
+  });
+
+  main.appendChild(section);
+});
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add("visible");
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll(".client").forEach(el => revealObs.observe(el));
+
+// ── IMAGE PARALLAX ────────────────────────────────────────────────
+function onScroll() {
+  document.querySelectorAll(".client-img").forEach(wrap => {
+    const r = wrap.getBoundingClientRect();
+    const progress = (window.innerHeight - r.top) / (window.innerHeight + r.height);
+    const shift = (progress - 0.5) * 50;
+    wrap.querySelector("img").style.transform = `translateY(${shift}px)`;
+  });
+}
+window.addEventListener("scroll", onScroll, { passive: true });
+
+// ── CATEGORY NAV ACTIVE STATE ─────────────────────────────────────
+const sectionObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll(".cat-nav-link").forEach(l => {
+        l.classList.toggle("active", l.dataset.target === e.target.id);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll(".cat-section").forEach(s => sectionObs.observe(s));
+
+// Smooth scroll for nav links
+document.querySelectorAll(".cat-nav-link").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    document.getElementById(link.dataset.target)?.scrollIntoView({ behavior: "smooth" });
+  });
+});
+
+// ── CURSOR ────────────────────────────────────────────────────────
+const cursorEl = document.getElementById("cursor");
+let mx = innerWidth/2, my = innerHeight/2, cx = mx, cy = my;
+document.addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; });
+(function loop() {
+  requestAnimationFrame(loop);
+  cx += (mx-cx)*.10; cy += (my-cy)*.10;
+  cursorEl.style.left = cx+"px"; cursorEl.style.top = cy+"px";
+})();
+</script>
+</body>
+</html>
