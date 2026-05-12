@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing — Sacred Noise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Syne:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --text:#F2EDE4;
+  --dim:rgba(242,237,228,.38);
+  --bg:#000;
+  --card:#0f0f0f;
+  --red:#CC1A1A;
+  --purple:#6A0DAD;
+  --blue:#1F3A93;
+  --pad:32px;
+}
+
+html,body{
+  width:100%;min-height:100%;
+  background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;user-select:none;
+}
+
+/* GRAIN */
+body::before{
+  content:'';position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+  background-size:160px;animation:grain .35s steps(2) infinite;
+}
+@keyframes grain{
+  0%{background-position:0 0}25%{background-position:-40px 15px}
+  50%{background-position:20px -30px}75%{background-position:-15px 40px}
+}
+
+/* CURSOR */
+#cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:left,top}
+.wm{animation:wingFlap 2.4s ease-in-out infinite}
+.wm.r{animation-delay:.15s}
+@keyframes wingFlap{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}
+*{cursor:none!important}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:800;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:26px var(--pad);
+  border-bottom:1px solid rgba(242,237,228,.07);
+  background:rgba(0,0,0,.88);backdrop-filter:blur(14px);
+}
+.back-link{
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .2s;
+}
+.back-link:hover{color:var(--text)}
+.page-title{font-family:'Pirata One',cursive;font-size:clamp(22px,2.5vw,34px);letter-spacing:.05em;font-weight:normal}
+.page-hint{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+
+/* NAV */
+.nav-wrap{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:24px var(--pad) 20px;
+  position:sticky;top:79px;z-index:700;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(242,237,228,.04);
+}
+.pill{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;padding:8px 18px;border-radius:24px;
+  border:1px solid rgba(242,237,228,.18);background:none;color:var(--dim);
+  transition:all .2s;
+}
+.pill:hover{color:var(--text);border-color:rgba(242,237,228,.45)}
+.pill.active{background:var(--text);color:#000;border-color:var(--text)}
+.pill[data-cat="journalism"].active{background:var(--red);border-color:var(--red);color:#fff}
+.pill[data-cat="casestudy"].active{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill[data-cat="content"].active{background:var(--blue);border-color:var(--blue);color:#fff}
+.pill[data-cat="thought"].active{background:var(--red);border-color:var(--red);color:#fff}
+.pill[data-cat="columns"].active{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill[data-cat="reviews"].active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* MAIN */
+main{padding:36px var(--pad) 100px}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+/* CARD */
+.card{
+  background:var(--card);
+  border-radius:2px;
+  overflow:hidden;
+  text-decoration:none;
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  transition:border-color .3s;
+}
+
+/* IMAGE */
+.card-img{position:relative;aspect-ratio:16/9;overflow:hidden;flex-shrink:0}
+.card-img-inner{
+  position:absolute;inset:-4%;
+  background-size:cover;background-position:center;
+  transition:transform .4s ease;
+  will-change:transform;
+}
+.card-placeholder{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.card-placeholder-init{
+  font-family:'Pirata One',cursive;
+  font-size:clamp(48px,6vw,72px);
+  color:rgba(242,237,228,.1);
+  letter-spacing:.05em;
+  line-height:1;
+  text-shadow:0 0 60px currentColor;
+}
+
+/* CARD BODY */
+.card-body{padding:16px 18px 20px;display:flex;flex-direction:column;flex:1}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.card-cat{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;border:1px solid;
+}
+.card-cat.c-journalism{color:var(--red);border-color:rgba(204,26,26,.35);background:rgba(204,26,26,.07)}
+.card-cat.c-casestudy{color:#9b59e8;border-color:rgba(106,13,173,.35);background:rgba(106,13,173,.07)}
+.card-cat.c-content{color:#5a8fe8;border-color:rgba(31,58,147,.35);background:rgba(31,58,147,.07)}
+.card-cat.c-thought{color:var(--red);border-color:rgba(204,26,26,.35);background:rgba(204,26,26,.07)}
+.card-cat.c-columns{color:#9b59e8;border-color:rgba(106,13,173,.35);background:rgba(106,13,173,.07)}
+.card-cat.c-reviews{color:#5a8fe8;border-color:rgba(31,58,147,.35);background:rgba(31,58,147,.07)}
+.card-lang{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--dim);font-style:italic}
+.card-pub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.card-title{
+  font-family:'Pirata One',cursive;
+  font-size:clamp(17px,1.5vw,21px);
+  line-height:1.25;letter-spacing:.03em;font-weight:normal;
+  margin-bottom:10px;color:var(--text);
+  min-height:2.5em;
+}
+.card-excerpt{
+  font-family:'Syne',sans-serif;font-size:12px;line-height:1.8;
+  color:rgba(242,237,228,.5);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:18px;flex:1;
+}
+.card-read{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);
+  display:flex;align-items:center;gap:6px;
+  transition:color .2s,gap .2s;margin-top:auto;
+}
+.card:hover .card-read{color:var(--text);gap:10px}
+
+/* SCAN LINE */
+#scanLine{
+  position:fixed;top:0;left:0;width:100%;height:2px;
+  background:var(--red);
+  box-shadow:0 0 14px rgba(204,26,26,1),0 0 32px rgba(204,26,26,.6),0 0 64px rgba(204,26,26,.3);
+  z-index:9500;pointer-events:none;opacity:0;transform:translateY(-2px);
+}
+
+/* CARD ENTER ANIMATION */
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="scanLine"></div>
+
+<!-- CURSOR -->
+<div id="cursor">
+  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+    <path d="M19 19C16 13 11 6 15 4C18 7 19 13 19 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 18C12 11 11 5 15 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 19C28 13 33 6 29 4C26 7 25 13 25 19" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 18C32 11 33 5 29 4" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm"   d="M18 22C12 19 5 20 2 24C5 28 12 27 18 24"   stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm"   d="M17 23C11 20 4 21 2 24"                     stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm"   d="M17 25C11 23 5 24 3 27"                     stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
+    <path class="wm r" d="M26 22C32 19 39 20 42 24C39 28 32 27 26 24" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.1)"/>
+    <path class="wm r" d="M27 23C33 20 40 21 42 24"                   stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path class="wm r" d="M27 25C33 23 39 24 41 27"                   stroke="rgba(242,237,228,.3)"  stroke-width=".4"  fill="none"/>
+    <path d="M19 25C16 31 11 38 15 40C18 37 19 31 19 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M16 26C12 33 11 39 15 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <path d="M25 25C28 31 33 38 29 40C26 37 25 31 25 25" stroke="rgba(242,237,228,.88)" stroke-width=".9" fill="rgba(242,237,228,.07)"/>
+    <path d="M28 26C32 33 33 39 29 40" stroke="rgba(242,237,228,.45)" stroke-width=".45" fill="none"/>
+    <circle cx="22" cy="22" r="5.5" stroke="rgba(242,237,228,.85)" stroke-width=".7" fill="none"/>
+    <circle cx="20" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+    <circle cx="24" cy="22" r=".85" fill="rgba(242,237,228,.9)"/>
+  </svg>
+</div>
+
+<div class="header">
+  <a href="index.html" class="back-link">← Sacred Noise</a>
+  <h1 class="page-title">Writing</h1>
+  <span class="page-hint">[ Words & Work ]</span>
+</div>
+
+<div class="nav-wrap" id="navWrap">
+  <button class="pill active" data-cat="all">All</button>
+  <button class="pill" data-cat="journalism">Journalism</button>
+  <button class="pill" data-cat="casestudy">Case studies</button>
+  <button class="pill" data-cat="content">Content</button>
+  <button class="pill" data-cat="thought">Thought leadership</button>
+  <button class="pill" data-cat="columns">Columns</button>
+  <button class="pill" data-cat="reviews">Reviews</button>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// ARTICLES DATA
+// ─ cat: journalism | casestudy | content | thought
+// ─ img: null uses a styled placeholder. Replace null with a direct
+//        image URL to show the article's actual cover image.
+// ─ Fill in real titles and excerpts for the Finnish-language pieces.
+// ═══════════════════════════════════════════════════════════════════
+const ARTICLES = [
+  // ── JOURNALISM ──────────────────────────────────────────────────
+  {
+    cat:'journalism', pub:'Helsingin Sanomat', year:'2015',
+    title:'Add real HS article title here',
+    excerpt:'Add the opening line or a short description of this piece from Helsingin Sanomat.',
+    url:'https://www.hs.fi/talous/art-2000002920280.html',
+    lang:'fi', img:'https://images.sanoma-sndp.fi/03296cc8baa74d4f9cdfa1665fe0b5c9.jpg/normal/978.avif',
+  },
+  {
+    cat:'journalism', pub:'Taloussanomat', year:'2014',
+    title:'Add real Taloussanomat title here',
+    excerpt:'Add the opening line or a short description of this Taloussanomat piece.',
+    url:'https://www.is.fi/taloussanomat/art-2000001922244.html',
+    lang:'fi', img:'https://images.sanoma-sndp.fi/cd334a78caf6410392a115e70b446ed6.jpg/normal/978.avif',
+  },
+  // ── CASE STUDIES ────────────────────────────────────────────────
+  {
+    cat:'casestudy', pub:'Reaktor', year:'2022',
+    title:'K-Group: Retail reimagined',
+    excerpt:'How Reaktor helped K-Group build the digital backbone of modern Finnish retail — from the ground up.',
+    url:'https://www.reaktor.com/work/k-group',
+    lang:'en', img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Kesko/Kesko_brand_2019_Sandstrom_highres-8_v2_xlgi2k.jpg',
+  },
+  {
+    cat:'casestudy', pub:'Reaktor', year:'2021',
+    title:'Elisa: Telecom transformed',
+    excerpt:'A deep dive into the work behind one of Finland\'s largest digital transformations.',
+    url:'https://www.reaktor.com/work/elisa',
+    lang:'en', img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Elisa/elisa_hero-2800x0-c-default.webp',
+  },
+  {
+    cat:'casestudy', pub:'Reaktor', year:'2021',
+    title:'Starcart: When any purchase is one click away',
+    excerpt:'Building the future of one-click commerce — and what it takes to make it feel inevitable.',
+    url:'https://www.reaktor.com/work/starcart-when-any-purchase-is-just-one-click-away',
+    lang:'en', img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/reaktor-retail-website-case-starcart-hero.webp',
+  },
+  {
+    cat:'casestudy', pub:'Reaktor', year:'2020',
+    title:'Navigator Partners: Private equity, digitised',
+    excerpt:'Transforming private equity operations through sharp digital tooling and a cleaner way to see the numbers.',
+    url:'https://www.reaktor.com/work/navigator-partners',
+    lang:'en', img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Navigator%20Partners/Navigator_case_hero_ch7hea.png',
+  },
+  // ── CONTENT ─────────────────────────────────────────────────────
+  {
+    cat:'content', pub:'Ilmarinen', year:'2019',
+    title:'Esports & Ilmarinen',
+    excerpt:'Miten esports muuttaa työn ja vapaa-ajan rajoja nuorten aikuisten elämässä — ja mitä se tarkoittaa työnantajakuvalle.',
+    url:'https://www.ilmarinen.fi/ajankohtaista/blogit-ja-artikkelit/2019/esports_ilmarinen/',
+    lang:'fi', img:'https://www.ilmarinen.fi/media_global/kuvapankki/ajankohtaista/2019-ihmiset--ilmiot/paakuvat/ilmarinen_havu_gaming_03_980x300px2.jpg?mode=crop&width=1440&height=360&format=webp',
+  },
+  {
+    cat:'content', pub:'YIT Ytimessä', year:'2020',
+    title:'Liukuvalu',
+    excerpt:'Artikkeli YIT:n asukaslehdessä rakentamisen innovaatioista ja siitä, miten liukuvalutekniikka muuttaa tapaa rakentaa.',
+    url:'https://www.yit.fi/ytimessa/liukuvalu',
+    lang:'fi', img:'https://www.yit.fi/globalassets/images/infra/articles---frontpage/yit-liukuvalu-slip-cast-muotti.jpg?w=1920&scale=down&mode=max&quality=80&format=jpg',
+  },
+  {
+    cat:'content', pub:'Helsingin yliopisto', year:'2019',
+    title:'Tieteen tulevaisuus avoimuudessa',
+    excerpt:'Avoin data ja avoimuus ovat tieteen tulevaisuuden kulmakiviä — mutta mitä se käytännössä tarkoittaa tutkijalle?',
+    url:'https://www.helsinki.fi/fi/uutiset/korkeakoulupolitiikka/tieteen-tulevaisuus-avoimuudessa-kuten-avoimessa-datassa',
+    lang:'fi', img:'https://www.helsinki.fi/assets/drupal/styles/16_10_xl_2x/s3/media-image/hy_think_open_kimmo_vehkalahti_01_1500px.jpg.webp?itok=qdFwYxnb',
+  },
+  {
+    cat:'content', pub:'Helsingin yliopisto', year:'2019',
+    title:'Yhteiskunta rakentuu tiedon varaan',
+    excerpt:'Tieteen pitäisi olla radikaalisti avointa. Yhteiskunta rakentuu tiedon varaan — ja siksi sen ei pitäisi olla kenenkään omaisuutta.',
+    url:'https://www.helsinki.fi/fi/uutiset/korkeakoulupolitiikka/yhteiskunta-rakentuu-tiedon-varaan-ja-siksi-tieteen-pitaisi-olla-radikaalisti-avointa',
+    lang:'fi', img:'https://img.youtube.com/vi/tJrFvx_ehrA/maxresdefault.jpg',
+  },
+  {
+    cat:'content', pub:'YIT Group', year:'2021',
+    title:'Zalando aims to be the operating system for fashion',
+    excerpt:'What it means for retail, brands, and the future of how we buy clothes — when a marketplace decides it wants to be infrastructure.',
+    url:'https://www.yitgroup.com/en/news-repository/news/zalando-aims-to-be-the-operating-system-for-fashion',
+    lang:'en', img:'https://mb.cision.com/Public/13643/2657891/8ee3c04f0d684cea_800x800ar.jpg',
+  },
+  // ── THOUGHT LEADERSHIP ──────────────────────────────────────────
+  {
+    cat:'thought', pub:'Reaktor', year:'2021',
+    title:'On giving away our best-kept design secrets',
+    excerpt:'Why publishing your deepest expertise openly is the most generous — and strategically sound — thing you can do.',
+    url:'https://www.reaktor.com/insights-and-events/on-giving-away-our-best-kept-design-secrets-and-why-it-matters',
+    lang:'en', img:'https://www.reaktor.com/hs-fs/hubfs/Cloudinary%20migration/On%20giving%20away%20our%20best-kept%20design%20secrets%20and%20why%20it%20matters/Finalfinafinal-3_r4xeta.jpg?width=3000&name=Finalfinafinal-3_r4xeta.jpg',
+  },
+  {
+    cat:'thought', pub:'Reaktor', year:'2022',
+    title:'A user manual makes you a better team member — and a spouse',
+    excerpt:'What happens when you write an instruction manual for yourself and actually share it with the people around you.',
+    url:'https://www.reaktor.com/insights-and-events/a-user-manual-makes-you-a-better-team-member-and-a-spouse',
+    lang:'en', img:'https://www.reaktor.com/hs-fs/hubfs/Cloudinary%20migration/A%20user%20manual%20makes%20you%20a%20better%20team%20member%20and%20a%20spouse/DSCF2594_copy_ovxjeb.jpg?width=3000&name=DSCF2594_copy_ovxjeb.jpg',
+  },
+  // ── COLUMNS ─────────────────────────────────────────────────────
+  {
+    cat:'columns', pub:'Retoriikan kesäkoulu', year:'2017',
+    title:'Näin ensireaktio joko tuhoaa tai pilaa keskustelun',
+    excerpt:'Ensivaikutelma syntyy nopeammin kuin ehdimme ajatella — ja se jää elämään sitkeämmin kuin haluamme myöntää.',
+    url:'https://www.retoriikankesakoulu.fi/2026/2017/02/20/nain-ensireaktio-joko-tuhoaa-tai-pilaa-keskustelun/',
+    lang:'fi', img:'https://www.retoriikankesakoulu.fi/content/uploads/sites/14/2017/02/RKK-blogi-ensivaikutelma.jpg',
+  },
+  {
+    cat:'columns', pub:'Retoriikan kesäkoulu', year:'2017',
+    title:'Faktat kuntoon: eleistä, ilmeistä ja voima-asennoista',
+    excerpt:'Kehon kieli pettää sinut, mutta vain jos et tiedä mitä se sanoo. Faktat kuntoon — mitä tutkimus oikeasti kertoo.',
+    url:'https://www.retoriikankesakoulu.fi/2026/2017/05/09/faktat-kuntoon-eleista-ilmeista-ja-voima-asennoista/',
+    lang:'fi', img:'https://www.retoriikankesakoulu.fi/content/uploads/sites/14/2017/12/RKK-eleet-2.jpg',
+  },
+  {
+    cat:'columns', pub:'Hyveet.fi', year:'2016',
+    title:'Öykkaröivässä nykyajassa maltti on aiempaakin enemmän valttia',
+    excerpt:'Kiire, ääri-ilmiöt ja melu kaikkialla — ja silti se vanha viisaus pitää paikkansa ehkä paremmin kuin koskaan.',
+    url:'https://www.hyveet.fi/16707/oykkaroivassa-nykyajassa-maltti-on-aiempaakin-enemman-valttia/',
+    lang:'fi', img:'https://www.hyveet.fi/wp-content/uploads/2016/12/maaltti.jpg',
+  },
+  {
+    cat:'columns', pub:'Hyveet.fi', year:'2017',
+    title:'Vain yksi video riittää paljastamaan Trumpin pahuuden',
+    excerpt:'Yksi oikein valittu video sanoo enemmän kuin tuhat sanaa — etenkin silloin, kun sanat on jo käytetty väärin.',
+    url:'https://www.hyveet.fi/16848/vain-yksi-video-riittaa-paljastamaan-trumpin-pahuuden/',
+    lang:'fi', img:null,
+  },
+  {
+    cat:'columns', pub:'Hyveet.fi', year:'2016',
+    title:'Menneisyytesi huono teko ei muutu hyväksi',
+    excerpt:'Onni ei pese puhtaaksi. Menneisyyden teot kantavat omaa painoaan — siitä huolimatta mitä tänään tapahtuu.',
+    url:'https://www.hyveet.fi/16502/menneisyytesi-huono-teko-ei-muutu-hyvaksi-vaikka-olisit-nyt-onnellisimmillasi/',
+    lang:'fi', img:'https://www.hyveet.fi/wp-content/uploads/2016/09/HJSebastian.jpg',
+  },
+  // ── REVIEWS ─────────────────────────────────────────────────────
+  {
+    cat:'reviews', pub:'Konsolifin.net', year:'2007',
+    title:'Yakuza',
+    excerpt:'Arvostelu Segan rikosdraamasta, joka vie sinut Tokion yöelämän sydämeen — ja pitää sinut siellä.',
+    url:'https://www.konsolifin.net/arvostelu/yakuza',
+    lang:'fi', img:'https://www.konsolifin.net/sites/default/files/styles/uutisvirta/public/import_images/1152510805_yakuza.jpg?itok=m-jEXvmt',
+  },
+  {
+    cat:'reviews', pub:'Konsolifin.net', year:'2008',
+    title:'Lost Odyssey',
+    excerpt:'Arvostelu Mistwalker Studion roolipelistä — siitä mitä tapahtuu kun kuolematon muistaa liikaa.',
+    url:'https://www.konsolifin.net/arvostelu/lost-odyssey-lost-odyssey',
+    lang:'fi', img:'https://www.konsolifin.net/sites/default/files/styles/banneri/public/Lost%20Odyssey.jpg?itok=2I82vMy5',
+  },
+  {
+    cat:'reviews', pub:'Pandeia', year:'2014',
+    title:'Only Lovers Left Alive — film review',
+    excerpt:'A film review of Jim Jarmusch\'s vampire drama — life lessons from the lifeless.',
+    url:'https://racheltester1234.wordpress.com/2014/04/20/life-lessons-from-the-lifeless-a-film-review-of-only-lovers-left-alive/',
+    lang:'en', img:null,
+  },
+];
+
+const CAT_LABELS = {
+  journalism:'Journalism', casestudy:'Case study',
+  content:'Content', thought:'Thought leadership',
+  columns:'Column', reviews:'Review',
+};
+
+// Subtle dark tint per category — visible behind the placeholder initial
+const CAT_BG = {
+  journalism: 'radial-gradient(ellipse at 30% 70%,#1e0202 0%,#060202 100%)',
+  casestudy:  'radial-gradient(ellipse at 30% 70%,#10031e 0%,#04010a 100%)',
+  content:    'radial-gradient(ellipse at 30% 70%,#020515 0%,#010208 100%)',
+  thought:    'radial-gradient(ellipse at 30% 70%,#1a0209 0%,#060102 100%)',
+  columns:    'radial-gradient(ellipse at 30% 70%,#10031e 0%,#04010a 100%)',
+  reviews:    'radial-gradient(ellipse at 30% 70%,#020515 0%,#010208 100%)',
+};
+
+// Scramble characters — mix of symbols and uppercase
+const CHARS = '!<>-_\\/[]{}—=+*^?#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789§';
+
+function scramble(titleEl, text) {
+  let iter = 0;
+  clearInterval(titleEl._sc);
+  titleEl._sc = setInterval(() => {
+    titleEl.textContent = text.split('').map((ch, i) => {
+      if (ch === ' ' || ch === '-' || ch === '—') return ch;
+      if (i < iter) return text[i];
+      return CHARS[Math.floor(Math.random() * CHARS.length)];
+    }).join('');
+    iter += 0.55;
+    if (iter >= text.length) {
+      clearInterval(titleEl._sc);
+      titleEl.textContent = text;
+    }
+  }, 26);
+}
+
+function unscramble(titleEl, text) {
+  clearInterval(titleEl._sc);
+  titleEl.textContent = text;
+}
+
+// ── BUILD CARDS ───────────────────────────────────────────────────
+function buildCards(filter) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const list = filter === 'all' ? ARTICLES : ARTICLES.filter(a => a.cat === filter);
+
+  list.forEach((a, i) => {
+    const card = document.createElement('a');
+    card.href = a.url;
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
+    card.className = 'card';
+    card.style.animation = `cardIn .45s ease ${i * 0.04}s both`;
+
+    const imgStyle = a.img
+      ? `background-image:url('${a.img}');background-size:cover;background-position:center;`
+      : `background:${CAT_BG[a.cat]};`;
+
+    const initials = a.pub.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+    card.innerHTML = `
+      <div class="card-img">
+        <div class="card-img-inner" style="${imgStyle}"></div>
+        ${!a.img ? `<div class="card-placeholder"><span class="card-placeholder-init">${initials}</span></div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <span class="card-cat c-${a.cat}">${CAT_LABELS[a.cat]}</span>
+          ${a.lang === 'fi' ? '<span class="card-lang">FI</span>' : ''}
+        </div>
+        <div class="card-pub">${a.pub}&nbsp;·&nbsp;${a.year}</div>
+        <div class="card-title">${a.title}</div>
+        <div class="card-excerpt">${a.excerpt}</div>
+        <div class="card-read">Read&nbsp;→</div>
+      </div>
+    `;
+
+    // Parallax on image inner
+    const imgInner = card.querySelector('.card-img-inner');
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+      const y = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+      imgInner.style.transform = `translate(${x * -8}px,${y * -6}px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      imgInner.style.transform = 'translate(0,0)';
+    });
+
+    // Title scramble on hover
+    const titleEl = card.querySelector('.card-title');
+    const realTitle = a.title;
+    card.addEventListener('mouseenter', () => scramble(titleEl, realTitle));
+    card.addEventListener('mouseleave', () => unscramble(titleEl, realTitle));
+
+    grid.appendChild(card);
+  });
+}
+
+// ── RED LINE SCAN & FILTER ────────────────────────────────────────
+const scanLine = document.getElementById('scanLine');
+let currentCat = 'all';
+let scanning   = false;
+
+function scanAndFilter(newCat) {
+  if (scanning || newCat === currentCat) return;
+  scanning = true;
+
+  // Update pill states immediately
+  document.querySelectorAll('.pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.cat === newCat)
+  );
+
+  // Reset line to top
+  gsap.set(scanLine, { y: -2, opacity: 1 });
+
+  let swapped = false;
+  gsap.to(scanLine, {
+    y: window.innerHeight + 2,
+    duration: 0.52,
+    ease: 'power2.inOut',
+    onUpdate() {
+      // Swap content as line crosses the middle of the viewport
+      if (!swapped && gsap.getProperty(scanLine, 'y') > window.innerHeight * 0.42) {
+        swapped = true;
+        currentCat = newCat;
+        buildCards(newCat);
+      }
+    },
+    onComplete() {
+      gsap.set(scanLine, { opacity: 0, y: -2 });
+      scanning = false;
+    },
+  });
+}
+
+// ── NAV ──────────────────────────────────────────────────────────
+document.getElementById('navWrap').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (pill) scanAndFilter(pill.dataset.cat);
+});
+
+// ── CURSOR ────────────────────────────────────────────────────────
+const cursorEl = document.getElementById('cursor');
+let mx = innerWidth/2, my = innerHeight/2, cx = mx, cy = my;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function loop() {
+  requestAnimationFrame(loop);
+  cx += (mx-cx)*.10; cy += (my-cy)*.10;
+  cursorEl.style.left = cx+'px'; cursorEl.style.top = cy+'px';
+})();
+
+// ── INIT ─────────────────────────────────────────────────────────
+buildCards('all');
+</script>
+</body>
+</html>
