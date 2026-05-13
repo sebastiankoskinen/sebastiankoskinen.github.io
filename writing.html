@@ -10,35 +10,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-
 :root{
-  --text:#F2EDE4;
-  --dim:rgba(242,237,228,.38);
-  --bg:#000;
-  --card:#0f0f0f;
-  --red:#CC1A1A;
-  --purple:#6A0DAD;
-  --blue:#1F3A93;
+  --text:#F2EDE4;--dim:rgba(242,237,228,.38);
+  --bg:#000;--card:#0f0f0f;
+  --red:#CC1A1A;--purple:#6A0DAD;--blue:#1F3A93;
   --pad:32px;
 }
-
-html,body{
-  width:100%;min-height:100%;
-  background:var(--bg);color:var(--text);
-  font-family:'Syne',sans-serif;
-  -webkit-font-smoothing:antialiased;
-  cursor:none;user-select:none;
-}
-
-body::before{
-  content:'';position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
-  background-size:160px;animation:grain .35s steps(2) infinite;
-}
-@keyframes grain{
-  0%{background-position:0 0}25%{background-position:-40px 15px}
-  50%{background-position:20px -30px}75%{background-position:-15px 40px}
-}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;-webkit-font-smoothing:antialiased;cursor:none;user-select:none}
+body::before{content:'';position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.05;
+background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+background-size:160px;animation:grain .35s steps(2) infinite}
+@keyframes grain{0%{background-position:0 0}25%{background-position:-40px 15px}50%{background-position:20px -30px}75%{background-position:-15px 40px}}
 
 #cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:left,top}
 .wm{animation:wingFlap 2.4s ease-in-out infinite}
@@ -46,25 +28,13 @@ body::before{
 @keyframes wingFlap{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}
 *{cursor:none!important}
 
-.header{
-  position:sticky;top:0;z-index:800;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:26px var(--pad);
-  border-bottom:1px solid rgba(242,237,228,.07);
-  background:rgba(0,0,0,.88);backdrop-filter:blur(14px);
-}
+.header{position:sticky;top:0;z-index:800;display:flex;align-items:center;justify-content:space-between;padding:26px var(--pad);border-bottom:1px solid rgba(242,237,228,.07);background:rgba(0,0,0,.88);backdrop-filter:blur(14px)}
 .back-link{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .2s}
 .back-link:hover{color:var(--text)}
 .page-title{font-family:'Pirata One',cursive;font-size:clamp(22px,2.5vw,34px);letter-spacing:.05em;font-weight:normal}
 .page-hint{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
 
-.nav-wrap{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:24px var(--pad) 20px;
-  position:sticky;top:79px;z-index:700;
-  background:rgba(0,0,0,.92);backdrop-filter:blur(10px);
-  border-bottom:1px solid rgba(242,237,228,.04);
-}
+.nav-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:24px var(--pad) 20px;position:sticky;top:79px;z-index:700;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(242,237,228,.04)}
 .pill{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:8px 18px;border-radius:24px;border:1px solid rgba(242,237,228,.18);background:none;color:var(--dim);transition:all .2s}
 .pill:hover{color:var(--text);border-color:rgba(242,237,228,.45)}
 .pill.active{background:var(--text);color:#000;border-color:var(--text)}
@@ -75,16 +45,19 @@ body::before{
 .pill[data-cat="columns"].active{background:var(--purple);border-color:var(--purple);color:#fff}
 .pill[data-cat="reviews"].active{background:var(--blue);border-color:var(--blue);color:#fff}
 
+/* POETRY BAND */
+#poetry-band{padding:32px var(--pad) 28px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid rgba(242,237,228,.06);overflow:hidden}
+.poem-line{font-family:'Syne',sans-serif;font-style:italic;font-size:clamp(13px,1.2vw,15px);line-height:2.2;text-align:center;letter-spacing:.02em;color:rgba(242,237,228,.75)}
+.poem-attr{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(242,237,228,.22);margin-top:14px;text-align:center}
+
 main{padding:36px var(--pad) 100px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 
 .card{background:var(--card);border-radius:2px;overflow:hidden;text-decoration:none;color:var(--text);display:flex;flex-direction:column;transition:opacity .2s}
-
 .card-img{position:relative;aspect-ratio:16/9;overflow:hidden;flex-shrink:0}
 .card-img-inner{position:absolute;inset:-4%;background-size:cover;background-position:center;transition:transform .4s ease;will-change:transform}
 .card-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .card-placeholder-init{font-family:'Pirata One',cursive;font-size:clamp(48px,6vw,72px);color:rgba(242,237,228,.1);letter-spacing:.05em;line-height:1;text-shadow:0 0 60px currentColor}
-
 .card-body{padding:16px 18px 20px;display:flex;flex-direction:column;flex:1}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
 .card-cat{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid}
@@ -134,7 +107,7 @@ main{padding:36px var(--pad) 100px}
 <div class="header">
   <a href="index.html" class="back-link">&larr; Sacred Noise</a>
   <h1 class="page-title">Wordsmithing</h1>
-  <span class="page-hint">[ ☜(꒡⌓꒡) ]</span>
+  <span class="page-hint">[ &#9756;(&#865;&#9683;&#785;&#9683;) ]</span>
 </div>
 
 <div class="nav-wrap" id="navWrap">
@@ -146,6 +119,8 @@ main{padding:36px var(--pad) 100px}
   <button class="pill" data-cat="columns">Columns</button>
   <button class="pill" data-cat="reviews">Reviews</button>
 </div>
+
+<div id="poetry-band"></div>
 
 <main>
   <div class="grid" id="grid"></div>
@@ -159,7 +134,7 @@ const ARTICLES = [
    url:'https://www.hs.fi/talous/art-2000002920280.html',
    lang:'fi',img:'https://images.sanoma-sndp.fi/03296cc8baa74d4f9cdfa1665fe0b5c9.jpg/normal/978.avif'},
   {cat:'journalism',pub:'Taloussanomat',year:'2014',
-   title:'Suomessa aloittavalla tanskalaisyrityksellä\u00e4 tiukka henkil\u00f6st\u00f6politiikka: palkkaa vain komeita miehi\u00e4',
+   title:'Suomessa aloittavalla tanskalaisyrityksell\u00e4 tiukka henkil\u00f6st\u00f6politiikka: palkkaa vain komeita miehi\u00e4',
    excerpt:'Joe &amp; The Juice avaa marraskuun lopulla ensimm\u00e4isen mehubaarinsa Helsingin keskustan Stockmanniin. Juuri nyt yrityksell\u00e4 on k\u00e4ynniss\u00e4 rekrytointi, jossa komeus ja viileys ovat valttia.',
    url:'https://www.is.fi/taloussanomat/art-2000001922244.html',
    lang:'fi',img:'https://images.sanoma-sndp.fi/cd334a78caf6410392a115e70b446ed6.jpg/normal/978.avif'},
@@ -170,12 +145,12 @@ const ARTICLES = [
    lang:'en',img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Kesko/Kesko_brand_2019_Sandstrom_highres-8_v2_xlgi2k.jpg'},
   {cat:'casestudy',pub:'Reaktor',year:'2021',
    title:'Elisa: The go-to partner in revolutionizing telecom and digital services',
-   excerpt:'Elisa has set the standard for what people expect from a modern telecommunications and digital service provider. During our partnership, we have helped Elisa turn services into critical, and often new, businesses – phenomenally fast.',
+   excerpt:'Elisa has set the standard for what people expect from a modern telecommunications and digital service provider. During our partnership, we have helped Elisa turn services into critical, and often new, businesses \u2013 phenomenally fast.',
    url:'https://www.reaktor.com/work/elisa',
    lang:'en',img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Elisa/elisa_hero-2800x0-c-default.webp'},
   {cat:'casestudy',pub:'Reaktor',year:'2021',
    title:'Starcart: When any purchase is one click away',
-   excerpt:'Starting a new era of online commerce began with a bold idea: what if you could buy anything online, from any store, with a single familiar button that handles the full shopping flow behind the scenes? Together with Starcart, we turned that idea into reality.',
+   excerpt:'Starting a new era of online commerce began with a bold idea: what if you could buy anything online, from any store, with a single familiar button that handles the full shopping flow behind the scenes?',
    url:'https://www.reaktor.com/work/starcart-when-any-purchase-is-just-one-click-away',
    lang:'en',img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/reaktor-retail-website-case-starcart-hero.webp'},
   {cat:'casestudy',pub:'Reaktor',year:'2020',
@@ -185,77 +160,77 @@ const ARTICLES = [
    lang:'en',img:'https://5413232.fs1.hubspotusercontent-na1.net/hubfs/5413232/Cloudinary%20migration/Navigator%20Partners/Navigator_case_hero_ch7hea.png'},
   {cat:'content',pub:'Ilmarinen',year:'2019',
    title:'Videopelien pelaamisesta on tullut arvostettua ty\u00f6t\u00e4, jossa suomalaiset ovat maailman huippua',
-   excerpt:'Vielä muutama vuosi sitten ajatus videopelien pelaamisesta ammattina nauratti ihmisiä. Nyt esports on kovaa vauhtia nousemassa maailman seuratuimmaksi lajiksi, jonka ammattilaiset takovat miljoonia. Uuden pelimaailman ytimessä ovat suomalaisen Havu Gamingin tapaiset joukkueet.',
+   excerpt:'Viel\u00e4 muutama vuosi sitten ajatus videopelien pelaamisesta ammattina nauratti ihmisi\u00e4. Nyt esports on kovaa vauhtia nousemassa maailman seuratuimmaksi lajiksi, jonka ammattilaiset takovat miljoonia.',
    url:'https://www.ilmarinen.fi/ajankohtaista/blogit-ja-artikkelit/2019/esports_ilmarinen/',
    lang:'fi',img:'https://www.ilmarinen.fi/media_global/kuvapankki/ajankohtaista/2019-ihmiset--ilmiot/paakuvat/ilmarinen_havu_gaming_03_980x300px2.jpg?mode=crop&width=1440&height=360&format=webp'},
   {cat:'content',pub:'YIT Ytimess\u00e4',year:'2020',
    title:'Huippujemme ylpe\u00e4t rakentajat \u2013 liukuvalu on tehokas rakennustapa ja perinne, joka on vaarassa h\u00e4vit\u00e4',
-   excerpt:'Perinteikäs liukuvalu on pitänyt pintansa parhaana rakennusmenetelmänä monissa korkeissa kohteissa jo yli sata vuotta. Alan ammattilaisten eläköityessä vaarana on, ettei tekijöille löydy manttelinperijöitä.',
+   excerpt:'Perinteik\u00e4s liukuvalu on pit\u00e4nyt pintansa parhaana rakennusmenetelm\u00e4n\u00e4 monissa korkeissa kohteissa jo yli sata vuotta.',
    url:'https://www.yit.fi/ytimessa/liukuvalu',
    lang:'fi',img:'https://www.yit.fi/globalassets/images/infra/articles---frontpage/yit-liukuvalu-slip-cast-muotti.jpg?w=1920&scale=down&mode=max&quality=80&format=jpg'},
   {cat:'content',pub:'Helsingin yliopisto',year:'2019',
    title:'Tieteen tulevaisuus on avoimuudessa, kuten avoimessa datassa',
-   excerpt:'Suljettujen tutkimusympäristöjen aika on ohi, sanoo datatieteilijä Kimmo Vehkalahti. Hänen vetämänsä tilastotieteen kurssi rikkoo stereotypioita.',
+   excerpt:'Suljettujen tutkimusymp\u00e4rist\u00f6jen aika on ohi, sanoo datatieteilij\u00e4 Kimmo Vehkalahti. H\u00e4nen vet\u00e4m\u00e4ns\u00e4 tilastotieteen kurssi rikkoo stereotypioita.',
    url:'https://www.helsinki.fi/fi/uutiset/korkeakoulupolitiikka/tieteen-tulevaisuus-avoimuudessa-kuten-avoimessa-datassa',
    lang:'fi',img:'https://www.helsinki.fi/assets/drupal/styles/16_10_xl_2x/s3/media-image/hy_think_open_kimmo_vehkalahti_01_1500px.jpg.webp?itok=qdFwYxnb'},
   {cat:'content',pub:'Helsingin yliopisto',year:'2019',
    title:'Yhteiskunta rakentuu tiedon varaan, ja siksi tieteen pit\u00e4isi olla radikaalisti avointa',
-   excerpt:'Lisääntynyt avoimuus voi pelastaa ihmishenkiä, sanoo avoimen tieteen kysymyksiin perehtynyt tutkija Heidi Laine. Vallitseva tapa tehdä ja julkaista tiedettä ei vastaa nopeasti muuttuvan maailman tarpeisiin.',
+   excerpt:'Lis\u00e4\u00e4ntynyt avoimuus voi pelastaa ihmishenkia, sanoo avoimen tieteen kysymyksiin perehtynyt tutkija Heidi Laine.',
    url:'https://www.helsinki.fi/fi/uutiset/korkeakoulupolitiikka/yhteiskunta-rakentuu-tiedon-varaan-ja-siksi-tieteen-pitaisi-olla-radikaalisti-avointa',
    lang:'fi',img:'https://img.youtube.com/vi/tJrFvx_ehrA/maxresdefault.jpg'},
   {cat:'content',pub:'YIT Group',year:'2021',
    title:'Zalando aims to be the operating system for fashion',
-   excerpt:'Zalando was founded in 2008 by two friends and has grown from a small online store into a business that is challenging the entire industry. One of the company’s long-term goals is to create a completely personalised online shopping experience for every customer.',
+   excerpt:'Zalando was founded in 2008 by two friends and has grown from a small online store into a business that is challenging the entire industry.',
    url:'https://www.yitgroup.com/en/news-repository/news/zalando-aims-to-be-the-operating-system-for-fashion',
    lang:'en',img:'https://mb.cision.com/Public/13643/2657891/8ee3c04f0d684cea_800x800ar.jpg'},
   {cat:'thought',pub:'Reaktor',year:'2021',
    title:'On giving away our best-kept design secrets',
-   excerpt:'The just-released Interaction Design Academy (IDA) Handbook is nothing less than an attempt to ensure Finland’s competitiveness in digital design, say its writers, Karri-Pekka Laakso, Tiina Härkönen, and Kari Riihelä. They hope the book changes how design gets done, as the current state is often too detached from reality – to everyone’s detriment.',
+   excerpt:'The just-released Interaction Design Academy Handbook is nothing less than an attempt to ensure Finland\u2019s competitiveness in digital design.',
    url:'https://www.reaktor.com/insights-and-events/on-giving-away-our-best-kept-design-secrets-and-why-it-matters',
    lang:'en',img:'https://www.reaktor.com/hs-fs/hubfs/Cloudinary%20migration/On%20giving%20away%20our%20best-kept%20design%20secrets%20and%20why%20it%20matters/Finalfinafinal-3_r4xeta.jpg?width=3000&name=Finalfinafinal-3_r4xeta.jpg'},
   {cat:'thought',pub:'Reaktor',year:'2022',
    title:'A user manual makes you a better team member \u2014 and a spouse',
-   excerpt:'Having coached high-performing teams for 20 years, Jarkko Kailanto wanted to put pen to paper to capture a method he’s found to be the most effective of them all. For a co-writer, he found – surprisingly – a couples therapist. It turned out that the same challenges and needs make or break a dream team both in business and in romance.',
+   excerpt:'Having coached high-performing teams for 20 years, Jarkko Kailanto wanted to put pen to paper to capture a method he\u2019s found to be the most effective of them all.',
    url:'https://www.reaktor.com/insights-and-events/a-user-manual-makes-you-a-better-team-member-and-a-spouse',
    lang:'en',img:'https://www.reaktor.com/hs-fs/hubfs/Cloudinary%20migration/A%20user%20manual%20makes%20you%20a%20better%20team%20member%20and%20a%20spouse/DSCF2594_copy_ovxjeb.jpg?width=3000&name=DSCF2594_copy_ovxjeb.jpg'},
   {cat:'columns',pub:'Retoriikan kes\u00e4koulu',year:'2017',
    title:'N\u00e4in ensireaktio joko tuhoaa tai pilaa keskustelun',
-   excerpt:'Ensi-impression tekemiseen tarvitaan vain noin sekunnin kymmenesosa, eikä sitä voi enää tämän jälkeen helposti muuttaa. Mielikuva meistä saattaa tietysti muuttua ajan myötä paljonkin niiden mielissä, joita tapaamme vielä myöhemmin. Mutta etäisiksi jääville alkuvaikutelmamme jää pysymään.',
+   excerpt:'Ensi-impression tekemiseen tarvitaan vain noin sekunnin kymmenesosa, eik\u00e4 sit\u00e4 voi en\u00e4\u00e4 t\u00e4m\u00e4n j\u00e4lkeen helposti muuttaa.',
    url:'https://www.retoriikankesakoulu.fi/2026/2017/02/20/nain-ensireaktio-joko-tuhoaa-tai-pilaa-keskustelun/',
    lang:'fi',img:'https://www.retoriikankesakoulu.fi/content/uploads/sites/14/2017/02/RKK-blogi-ensivaikutelma.jpg'},
   {cat:'columns',pub:'Retoriikan kes\u00e4koulu',year:'2017',
    title:'Faktat kuntoon: eleist\u00e4, ilmeist\u00e4 ja voima-asennoista',
-   excerpt:'Helsingin Sanomissa oli vastikään juttu, jossa konsultti ja kouluttaja Franz Schnider kertoi, millaisia virheitä suomalaiset tekevät elekielessä. Jutussa Schnider antaa jopa huvittavia ja monille varmasti tuttuja esimerkkejä tilanteista, joissa elekieli ei ole aivan kohdallaan.',
+   excerpt:'Helsingin Sanomissa oli vastikaan juttu, jossa konsultti ja kouluttaja Franz Schnider kertoi, millaisia virheit\u00e4 suomalaiset tekev\u00e4t elekieless\u00e4.',
    url:'https://www.retoriikankesakoulu.fi/2026/2017/05/09/faktat-kuntoon-eleista-ilmeista-ja-voima-asennoista/',
    lang:'fi',img:'https://www.retoriikankesakoulu.fi/content/uploads/sites/14/2017/12/RKK-eleet-2.jpg'},
   {cat:'columns',pub:'Hyveet.fi',year:'2016',
    title:'\u00d6ykkar\u00f6iv\u00e4ss\u00e4 nykyajassa maltti on aiempaakin enemm\u00e4n valttia',
-   excerpt:'On sääli huomata, kuinka erilaiset ääriryhmät ovat yleistyneet ja kuinka ääriajattelu on vallannut alaa niin sosiaalisessa kuin perinteisessäkin mediassa. Aiheessa kuin aiheessa eri mieltä olevat osapuolet ampuvat aina vain kovemmilla panoksilla, eikä sovittelevuudella ja maltillisuudella ole enää juuri asiaa keskustelussa.',
+   excerpt:'On s\u00e4\u00e4li huomata, kuinka erilaiset \u00e4\u00e4riryhm\u00e4t ovat yleistyneet ja kuinka \u00e4\u00e4riajattelu on vallannut alaa niin sosiaalisessa kuin perinteisess\u00e4kin mediassa.',
    url:'https://www.hyveet.fi/16707/oykkaroivassa-nykyajassa-maltti-on-aiempaakin-enemman-valttia/',
    lang:'fi',img:'https://www.hyveet.fi/wp-content/uploads/2016/12/maaltti.jpg'},
   {cat:'columns',pub:'Hyveet.fi',year:'2017',
    title:'Vain yksi video riitt\u00e4\u00e4 paljastamaan Trumpin pahuuden',
-   excerpt:'Netissä on lähipäivinä pyörinyt video, jossa on listattu 24 asiaa, jotka Yhdysvaltain presidentti Donald Trump on sanonut tekevänsä paremmin kuin kukaan muu maailmassa. Valittuja paloja: ”Kukaan ei kohtele vammaisia yhtä hyvin kuin minä”, ”Kukaan ei ole minua parempi puolustusasioissa”, ”Kukaan ei rakasta Raamattua enemmän kuin minä” ja ”Kukaan ei kunnioita naisia enemmän kuin minä”.',
+   excerpt:'Netiss\u00e4 on l\u00e4hipäivin\u00e4 py\u00f6rinyt video, jossa on listattu 24 asiaa, jotka Yhdysvaltain presidentti Donald Trump on sanonut tekevänsä paremmin kuin kukaan muu maailmassa.',
    url:'https://www.hyveet.fi/16848/vain-yksi-video-riittaa-paljastamaan-trumpin-pahuuden/',
    lang:'fi',img:null},
   {cat:'columns',pub:'Hyveet.fi',year:'2016',
    title:'Menneisyytesi huono teko ei muutu hyv\u00e4ksi vaikka olisit nyt onnellisimmillasi',
-   excerpt:'Ihmisillä on suuri tarve selittää aikaisemmat valintansa itselleen ja muille niin, että ne näyttävät olleen välttämättömiä, jotta nykyinen – onnellinen – elämäntilanne olisi mahdollinen.',
+   excerpt:'Ihmisill\u00e4 on suuri tarve selitt\u00e4\u00e4 aikaisemmat valintansa itselleen ja muille niin, ett\u00e4 ne n\u00e4ytt\u00e4v\u00e4t olleen v\u00e4ltt\u00e4m\u00e4tt\u00f6mi\u00e4.',
    url:'https://www.hyveet.fi/16502/menneisyytesi-huono-teko-ei-muutu-hyvaksi-vaikka-olisit-nyt-onnellisimmillasi/',
    lang:'fi',img:'https://www.hyveet.fi/wp-content/uploads/2016/09/HJSebastian.jpg'},
   {cat:'reviews',pub:'Konsolifin.net',year:'2007',
    title:'Yakuza',
-   excerpt:'Vihdoin jotain, jolla saada samoja fiiliksiä kuin mitä Shenmue tarjosi. Pakostakin Yakuza muistuttaa Yu Suzukin messiaspeliä, joka pitkästä ja kuoppaisesta kehittelyprosessista huolimatta sai ikuisen sijan useiden sydämissä. Vaikka yhtäläisyydet ovat hajannaisia ja rikkonaisia, onnistuu Yakuza salaperäisesti siinä, missä Shenmue loisti.',
+   excerpt:'Vihdoin jotain, jolla saada samoja fiiliksi\u00e4 kuin mit\u00e4 Shenmue tarjosi. Pakostakin Yakuza muistuttaa Yu Suzukin messiaspeliä, joka pitkäst\u00e4 ja kuoppaisesta kehittelyprosessista huolimatta sai ikuisen sijan useiden sydämissä.',
    url:'https://www.konsolifin.net/arvostelu/yakuza',
    lang:'fi',img:'https://www.konsolifin.net/sites/default/files/styles/uutisvirta/public/import_images/1152510805_yakuza.jpg?itok=m-jEXvmt'},
   {cat:'reviews',pub:'Konsolifin.net',year:'2008',
    title:'Lost Odyssey',
-   excerpt:'Lost Odyssey ei ole pelkästään peli; se on kasvutarina täynnä elämänviisautta, ja kenties kantaa nuoren pelaajasukupolven läpi vaikeiden aikojen, kuten pelin hengelliset edeltäjät muinoin. Käsissämme on ehkä Sakaguchin magnum opus, tai ehkä Lost Odyssey on vasta alkua jollekin suurelle.',
+   excerpt:'Lost Odyssey ei ole pelk\u00e4st\u00e4\u00e4n peli; se on kasvutarina t\u00e4ynn\u00e4 el\u00e4m\u00e4nviisautta, ja kenties kantaa nuoren pelaajasukupolven l\u00e4pi vaikeiden aikojen.',
    url:'https://www.konsolifin.net/arvostelu/lost-odyssey-lost-odyssey',
    lang:'fi',img:'https://www.konsolifin.net/sites/default/files/styles/banneri/public/Lost%20Odyssey.jpg?itok=2I82vMy5'},
   {cat:'reviews',pub:'Pandeia',year:'2014',
    title:'Only Lovers Left Alive',
-   excerpt:'Only Lovers Left Alive is an ode to permanence but also a brief introduction to romantic sense of life. As such it is valuable to anyone who wants to slow down or learn detachment (positive, spiritual kind).',
+   excerpt:'Only Lovers Left Alive is an ode to permanence but also a brief introduction to romantic sense of life. As such it is valuable to anyone who wants to slow down or learn detachment.',
    url:'https://racheltester1234.wordpress.com/2014/04/20/life-lessons-from-the-lifeless-a-film-review-of-only-lovers-left-alive/',
    lang:'en',img:null},
 ];
@@ -269,8 +244,59 @@ const CAT_BG = {
   columns:'radial-gradient(ellipse at 30% 70%,#10031e 0%,#04010a 100%)',
   reviews:'radial-gradient(ellipse at 30% 70%,#020515 0%,#010208 100%)',
 };
-const CHARS = '!<>-_\\/[]{}=+*^?#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  
+
+// ── POETRY BAND ───────────────────────────────────────────────────
+const POEMS = [
+  {lines:["Words like violence","Break the silence","Come crashing in","Into my little world"],source:"Depeche Mode"},
+  {lines:["The limbed and headed machine of pain and undignified suffering","is firing up again. It wants to walk the desert.","Hurting. Longing. Dancing to disco music."],source:"Disco Elysium"},
+  {lines:["Finally I can see it","These birds not meant to fly alone"],source:"Turnstile"},
+  {lines:["Man fears the darkness, and so he scrapes away at the edges of it with fire.","He creates life by diminishing the Darkness."],source:"Neon Genesis Evangelion"},
+  {lines:["The highest activity a human being can attain is learning for understanding,","because to understand is to be free."],source:"Spinoza"},
+  {lines:["A mind not to be changed by place or time.","The mind is its own place, and in itself","Can make a heav\u2019n of hell, a hell of heav\u2019n."],source:"John Milton"},
+  {lines:["To see a world in a grain of sand","And a heaven in a wild flower,","Hold infinity in the palm of your hand","And eternity in an hour."],source:"William Blake"},
+];
+const POEM_COLORS = ['var(--red)','var(--purple)','var(--blue)'];
+let poetryDismissed = false;
+
+function dismissPoetry() {
+  if (poetryDismissed) return;
+  poetryDismissed = true;
+  const band = document.getElementById('poetry-band');
+  const h = band.offsetHeight;
+  gsap.to(band, {
+    opacity:0, duration:0.4, ease:'power1.in',
+    onComplete:() => {
+      band.style.height = h + 'px';
+      gsap.to(band, {
+        height:0, paddingTop:0, paddingBottom:0,
+        duration:0.4, ease:'power1.inOut',
+        onComplete:() => { band.style.display='none'; }
+      });
+    }
+  });
+}
+
+function onScrollCheck() {
+  if (window.scrollY > 120) {
+    window.removeEventListener('scroll', onScrollCheck);
+    dismissPoetry();
+  }
+}
+
+function initPoetry() {
+  const poem = POEMS[Math.floor(Math.random() * POEMS.length)];
+  const color = POEM_COLORS[Math.floor(Math.random() * POEM_COLORS.length)];
+  const band = document.getElementById('poetry-band');
+  band.innerHTML = poem.lines.map(l =>
+    `<span class="poem-line">${l}</span>`
+  ).join('') + `<span class="poem-attr">\u2014 ${poem.source}</span>`;
+  gsap.from('.poem-line', {opacity:0, y:10, stagger:0.3, duration:0.7, ease:'power2.out', delay:0.2});
+  gsap.from('.poem-attr', {opacity:0, y:8, duration:0.5, ease:'power2.out',
+    delay: 0.2 + poem.lines.length * 0.3 + 0.3});
+  window.addEventListener('scroll', onScrollCheck, {passive:true});
+}
+
+// ── CARDS ─────────────────────────────────────────────────────────
 function buildCards(filter){
   const grid=document.getElementById('grid');
   grid.innerHTML='';
@@ -305,14 +331,15 @@ function buildCards(filter){
       imgInner.style.transform=`translate(${x*-8}px,${y*-6}px)`;
     });
     card.addEventListener('mouseleave',()=>{imgInner.style.transform='translate(0,0)';});
-    const titleEl=card.querySelector('.card-title');
     grid.appendChild(card);
   });
 }
 
+// ── SCAN + FILTER ─────────────────────────────────────────────────
 const scanLine=document.getElementById('scanLine');
 let currentCat='all',scanning=false;
 function scanAndFilter(newCat){
+  dismissPoetry();
   if(scanning||newCat===currentCat)return;
   scanning=true;
   document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat===newCat));
@@ -328,12 +355,15 @@ document.getElementById('navWrap').addEventListener('click',e=>{
   if(pill)scanAndFilter(pill.dataset.cat);
 });
 
+// ── CURSOR ────────────────────────────────────────────────────────
 const cursorEl=document.getElementById('cursor');
 let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
 (function loop(){requestAnimationFrame(loop);cx+=(mx-cx)*.10;cy+=(my-cy)*.10;cursorEl.style.left=cx+'px';cursorEl.style.top=cy+'px';})();
 
+// ── INIT ─────────────────────────────────────────────────────────
 buildCards('all');
+initPoetry();
 </script>
 </body>
 </html>
