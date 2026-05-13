@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sacred Noise — Sebastian Koskinen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Syne:wght@400;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--text:#F2EDE4;--dim:rgba(242,237,228,.38);--red:#CC1A1A;--bg:#000}
+
+html,body{
+  width:100%;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+}
+
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
+  background-size:160px;
+}
+
+.wrap{
+  padding:48px 32px;
+  max-width:420px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.site-name{
+  font-family:'Pirata One',cursive;
+  font-size:42px;
+  letter-spacing:.04em;
+  font-weight:normal;
+  line-height:1;
+  margin-bottom:32px;
+  color:var(--text);
+}
+
+.message{
+  font-family:'Syne',sans-serif;
+  font-size:15px;
+  line-height:1.85;
+  color:rgba(242,237,228,.7);
+  margin-bottom:40px;
+}
+
+.message em{
+  font-style:normal;
+  color:var(--text);
+}
+
+.divider{
+  height:1px;
+  background:rgba(242,237,228,.1);
+  margin-bottom:32px;
+}
+
+.name{
+  font-family:'Pirata One',cursive;
+  font-size:22px;
+  letter-spacing:.03em;
+  font-weight:normal;
+  margin-bottom:6px;
+}
+
+.phone{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--dim);
+  margin-bottom:24px;
+}
+
+.contact-btns{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.btn{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 18px;
+  border:1px solid rgba(242,237,228,.18);
+  text-decoration:none;
+  color:var(--dim);
+  font-family:'Space Mono',monospace;
+  font-size:9px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  transition:color .2s, border-color .2s;
+}
+
+.btn:hover{color:var(--text);border-color:rgba(242,237,228,.45)}
+
+.btn svg{flex-shrink:0;opacity:.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1 class="site-name">Sacred Noise</h1>
+
+  <p class="message">
+    My portfolio is best experienced on desktop &mdash; well, actually it&rsquo;s
+    <em>the only way to experience it</em> (currently)!
+    Sorry, but aesthetics first&nbsp;&nbsp;(ﾉ☉ヮ⚆)ﾉ&nbsp;⌒*:･ﾟ✧
+  </p>
+
+  <div class="divider"></div>
+
+  <p class="name">Sebastian Koskinen</p>
+  <p class="phone">+358 40 715 5008</p>
+
+  <div class="contact-btns">
+    <a href="mailto:sebastiannhkoskinen@gmail.com" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <path d="M2 7l10 7 10-7"/>
+      </svg>
+      Email
+    </a>
+    <a href="https://www.linkedin.com/in/sebastian-koskinen-803387a9/" target="_blank" rel="noopener" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="2"/>
+        <path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>
+      </svg>
+      LinkedIn
+    </a>
+    <a href="https://www.instagram.com/rocketlounger" target="_blank" rel="noopener" class="btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/>
+      </svg>
+      Instagram
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
