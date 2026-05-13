@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+  if(/Mobi|Android|iPhone|iPod/i.test(navigator.userAgent)||window.innerWidth<768)
+    window.location.href='/mobile.html';
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sacred Noise — Sebastian Koskinen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
