@@ -41,7 +41,7 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
 
 /* CHARACTER */
 #character{position:fixed;inset:0;z-index:10;opacity:0;animation:fadeIn 1.2s ease .4s forwards;display:flex;align-items:center;justify-content:center}
-#char-img{height:88vh;width:auto;pointer-events:none;animation:charBreathe 4s ease-in-out infinite}
+#char-img{max-height:100vh;max-width:100vw;width:auto;height:auto;pointer-events:none;animation:charBreathe 4s ease-in-out infinite}
 @keyframes charBreathe{0%,100%{filter:brightness(.97)}50%{filter:brightness(1.07)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
