@@ -411,6 +411,10 @@ function openProject(p){
 document.getElementById('projClose').addEventListener('click',()=>{
   document.getElementById('proj-overlay').classList.remove('open');
 });
+document.getElementById('proj-overlay').addEventListener('click',e=>{
+  if(!e.target.closest('.proj-inner')&&!e.target.closest('.proj-close'))
+    document.getElementById('proj-overlay').classList.remove('open');
+});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     document.getElementById('proj-overlay').classList.remove('open');
