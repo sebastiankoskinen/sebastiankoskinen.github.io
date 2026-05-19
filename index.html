@@ -22,8 +22,8 @@ html,body{width:100%;height:100%;background:#000;color:var(--text);font-family:"
 /* GRAIN */
 body::before{content:"";position:fixed;inset:0;z-index:900;pointer-events:none;opacity:.055;
 background-image:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23n)%27/%3E%3C/svg%3E");
-background-size:160px;animation:grain .35s steps(2) infinite}
-@keyframes grain{0%{background-position:0 0}25%{background-position:-40px 15px}50%{background-position:20px -30px}75%{background-position:-15px 40px}}
+background-size:160px;animation:grn .35s steps(2) infinite}
+@keyframes grn{0%{background-position:0 0}25%{background-position:-40px 15px}50%{background-position:20px -30px}75%{background-position:-15px 40px}}
 
 /* VIGNETTE */
 body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse at 53% 58%,transparent 25%,rgba(0,0,0,.6) 100%)}
@@ -41,7 +41,7 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
 
 /* CHARACTER */
 #character{position:fixed;inset:0;z-index:10;opacity:0;animation:fadeIn 1.2s ease .4s forwards}
-#char-img{width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none;animation:charBreathe 4s ease-in-out infinite}
+#char-img{width:100%;height:100%;object-fit:contn;object-position:center;pointer-events:none;animation:charBreathe 4s ease-in-out infinite}
 @keyframes charBreathe{0%,100%{filter:brightness(.97)}50%{filter:brightness(1.07)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
@@ -204,7 +204,7 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
   display:block;margin-top:24px;text-align:center;
 }
 
-/* OVERLAYS (writing, ai, brand placeholders) */
+/* OVERLAYS (writing, , brand placeholders) */
 .overlay{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s}
 .overlay.open{opacity:1;pointer-events:all}
 .overlay::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,var(--oa) 0%,transparent 65%);opacity:.05}
@@ -269,7 +269,7 @@ body::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:none;back
 <!-- 90° top: AI -->
 <div class="node" id="n-ai" data-s="ai" data-url="ai.html" style="--nc:#1F3A93;--fd:5.8s;--fd2:1.1s">
   <svg viewBox="0 0 64 64" fill="none"><polygon points="32,4 60,32 32,60 4,32" stroke="#1F3A93" stroke-width="1.4" fill="rgba(31,58,147,.06)"/><polygon points="32,16 48,32 32,48 16,32" stroke="#1F3A93" stroke-width=".6" fill="none" opacity=".4"/></svg>
-  <span class="nl">AI<span class="nt">[ process running ]</span></span>
+  <span class="nl">(҂◡_◡) ᕤ<span class="nt">[ process running ]</span></span>
 </div>
 
 <!-- 30° upper-right: Ad Films -->
@@ -423,7 +423,7 @@ const NODE_TEXTS={
     b:"To be clear: I'm not a director, DOP, or a filmmaker, but I've been heavily involved in these (and many more; consider this my hall of fame) as a Creative & copywriter and an all-around cinephile who dreams of being a filmmaker… just like every other ad man."
   },
   "n-ai":{
-    h:"Unapologetically Artificial",
+    h:"(A)rcane (I)nference",
     b:"The fourth industrial revolution and/or AI apocalypse is here and whether we want it or not, we must promptly prompt ourselves to 100x efficiency or become somewhat or fully unemployable. Good thing is great writers are great prompters! Ergo, I'm training myself currently and constantly to be a proper 360 creative. WIP, but I'll get there."
   },
   "n-brand":{
